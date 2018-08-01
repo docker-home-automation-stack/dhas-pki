@@ -6,9 +6,9 @@ CMD="$1"; shift
 if [ "${CMD}" = 'init' ] || [ "${CMD}" = 'start' ]; then
 
   if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' ]; then
-    [ ! -s /etc/passwd.default ] && cp /etc/passwd /etc/passwd.orig
-    [ ! -s /etc/shadow.default ] && cp /etc/shadow /etc/shadow.orig
-    [ ! -s /etc/group.default ] && cp /etc/group /etc/group.orig
+    [ ! -s /etc/passwd.orig ] && cp /etc/passwd /etc/passwd.orig
+    [ ! -s /etc/shadow.orig ] && cp /etc/shadow /etc/shadow.orig
+    [ ! -s /etc/group.orig ] && cp /etc/group /etc/group.orig
     cp -f /etc/passwd.orig /etc/passwd
     cp -f /etc/shadow.orig /etc/shadow
     cp -f /etc/group.orig /etc/group
