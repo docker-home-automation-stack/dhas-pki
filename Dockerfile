@@ -1,6 +1,8 @@
 FROM alpine
 
-RUN apk add --no-cache easy-rsa
+RUN apk add --no-cache \
+      bash \
+      easy-rsa
 
 VOLUME ["/root-ca"]
 VOLUME ["/server-ca"]
