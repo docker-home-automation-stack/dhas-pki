@@ -34,4 +34,4 @@ WORKDIR ${SERVICE_HOME}
 VOLUME ${SERVICE_HOME}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "ash" ]
+CMD ["ash", "-c", "trap : TERM INT; (while true; do sleep 1000; done) & wait"]
