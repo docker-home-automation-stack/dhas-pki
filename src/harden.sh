@@ -106,3 +106,6 @@ rm -f /etc/fstab
 
 # Remove broken symlinks (because we removed the targets above).
 find $sysdirs -xdev -type l -exec test ! -e {} \; -delete
+
+# delete oneself
+rm -f -- "$0"

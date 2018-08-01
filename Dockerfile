@@ -1,37 +1,32 @@
 FROM alpine
 
-# Optional Configuration Parameter
-ARG SERVICE_USER
-ARG SERVICE_USER_ID
-ARG SERVICE_GROUP
-ARG SERVICE_GROUP_ID
-ARG SERVICE_HOME
+ARG SVC_USER
+ARG SVC_USER_ID
+ARG SVC_GROUP
+ARG SVC_GROUP_ID
+ARG SVC_HOME
 
-# Default Settings
-ENV SERVICE_USER ${SERVICE_USER:-pki}
-ENV SERVICE_USER_ID ${SERVICE_USER:-40443}
-ENV SERVICE_GROUP ${SERVICE_USER:-pki}
-ENV SERVICE_GROUP_ID ${SERVICE_USER:-40443}
-ENV SERVICE_HOME ${SERVICE_HOME:-/${SERVICE_USER}}
+ENV SVC_USER ${SVC_USER:-pki}
+ENV SVC_USER_ID ${SVC_USER:-40443}
+ENV SVC_GROUP ${SVC_USER:-pki}
+ENV SVC_GROUP_ID ${SVC_USER:-40443}
+ENV SVC_HOME ${SVC_HOME:-/${SVC_USER}}
 
-COPY ./src/harden.sh /root
-COPY ./src/vars ./src/openssl-easyrsa.cnf ${SERVICE_HOME}
+COPY ./src/entry.sh ./src/harden.sh /
+COPY ./src/vars ./src/openssl-easyrsa.cnf ${SVC_HOME}
 
-RUN \
-  mkdir -p ${SERVICE_HOME} && \
-  adduser -h ${SERVICE_HOME} -s /sbin/nologin -u ${SERVICE_USER_ID} -D ${SERVICE_USER} && \
-  chown -R ${SERVICE_USER}:${SERVICE_USER} ${SERVICE_HOME} && \
-  \
-  apk add --no-cache \
-    dumb-init \
-    easy-rsa \
-    jq && \
-  \
-  /root/harden.sh
+RUN apk add --no-cache \
+      dumb-init \
+      easy-rsa \
+      su-exec \
+      tini \
+      jq && \
+    \
+    /harden.sh
 
-USER ${SERVICE_USER}
-WORKDIR ${SERVICE_HOME}
-VOLUME ${SERVICE_HOME}
+USER ${SVC_USER}
+WORKDIR ${SVC_HOME}
+VOLUME ${SVC_HOME}
 
-ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD ["ash", "-c", "trap : TERM INT; (while true; do sleep 1000; done) & wait"]
+ENTRYPOINT [ "/sbin/tini", "--", "/entry.sh" ]
+CMD ["start", "${SVC_USER}", "${SVC_USER_ID}", "${SVC_GROUP}", "${SVC_GROUP_ID}", "${SVC_HOME}", "ash", "-c", "trap : TERM INT; (while true; do sleep 1000; done) & wait"]
