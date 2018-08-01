@@ -16,15 +16,15 @@ COPY ./src/entry.sh ./src/harden.sh /
 COPY ./src/vars ./src/openssl-easyrsa.cnf ${SVC_HOME}/
 
 RUN apk add --no-cache \
+      dumb-init \
       easy-rsa \
       su-exec \
-      tini \
-      jq && \
+      jq \
     \
-    /harden.sh
+    && /harden.sh
 
 WORKDIR ${SVC_HOME}
 VOLUME ${SVC_HOME}
 
-ENTRYPOINT [ "/sbin/tini", "--", "/entry.sh" ]
-CMD ["start", "${SVC_USER}", "${SVC_USER_ID}", "${SVC_GROUP}", "${SVC_GROUP_ID}", "${SVC_HOME}", "ash", "-c", "trap : TERM INT; (while true; do sleep 1000; done) & wait"]
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "sh", "-c", "/entry.sh", "start", "ash", "-c", "trap : TERM INT; (while true; do sleep 1000; done) & wait" ]

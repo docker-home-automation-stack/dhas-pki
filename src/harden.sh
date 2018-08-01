@@ -39,7 +39,6 @@ find /sbin /usr/sbin \( ! -type d \
   -a ! -name setup-proxy \
   -a ! -name sshd \
   -a ! -name su-exec \
-  -a ! -name tini \
   \) -exec rm -fv {} \;
 
 # Remove world-writable permissions.

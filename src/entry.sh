@@ -1,17 +1,9 @@
-#!/bin/sh
+#!/usr/bin/dumb-init /bin/sh
 set -e
-
-echo "DEBUG: $@"
 
 CMD="$1"; shift
 
 if [ "${CMD}" = 'start' -a "$(id -u)" = '0' ]; then
-  SVC_USER="$1"; shift
-  SVC_USER_ID="$1"; shift
-  SVC_GROUP="$1"; shift
-  SVC_GROUP_ID="$1"; shift
-  SVC_HOME="$1"; shift
-
   [ ! -s /etc/passwd.default ] && cp /etc/passwd /etc/passwd.orig
   [ ! -s /etc/shadow.default ] && cp /etc/shadow /etc/shadow.orig
   [ ! -s /etc/group.default ] && cp /etc/group /etc/group.orig
