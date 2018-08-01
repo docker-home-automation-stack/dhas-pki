@@ -12,18 +12,17 @@ ENV SVC_GROUP ${SVC_USER:-pki}
 ENV SVC_GROUP_ID ${SVC_GROUP_ID:-40443}
 ENV SVC_HOME ${SVC_HOME:-/${SVC_USER}}
 
-COPY ./src/entry.sh ./src/harden.sh /
+COPY ./src/harden.sh ./src/entry.sh /
 COPY ./src/vars ./src/openssl-easyrsa.cnf ${SVC_HOME}/
 
-RUN /entry.sh init \
-    \
-    && apk add --no-cache \
+RUN apk add --no-cache \
       dumb-init \
       easy-rsa \
       su-exec \
       jq \
     \
-    && /harden.sh
+    && /harden.sh \
+    && /entry.sh
 
 WORKDIR ${SVC_HOME}
 VOLUME ${SVC_HOME}
