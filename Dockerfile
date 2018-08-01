@@ -22,7 +22,7 @@ RUN apk add --no-cache \
       jq \
     \
     && /harden.sh \
-    && /entry.sh
+    && /entry.sh init
 
 WORKDIR ${SVC_HOME}
 VOLUME ${SVC_HOME}
