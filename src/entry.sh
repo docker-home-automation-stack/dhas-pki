@@ -1,9 +1,11 @@
 #!/bin/sh
 set -e
 
+echo "DEBUG: $@"
+
 CMD="$1"; shift
 
-if [ "$CMD" = 'start' -a "$(id -u)" = '0' ]; then
+if [ "${CMD}" = 'start' -a "$(id -u)" = '0' ]; then
   SVC_USER="$1"; shift
   SVC_USER_ID="$1"; shift
   SVC_GROUP="$1"; shift
