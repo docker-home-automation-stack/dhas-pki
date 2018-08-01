@@ -28,9 +28,10 @@ rm -fr /etc/periodic
 # Remove all but a handful of admin commands.
 find /sbin /usr/sbin ! -type d \
   -a ! -name login_duo \
+  -a ! -name jq \
   -a ! -name setup-proxy \
   -a ! -name sshd \
-  -a ! -name start.sh \
+  -a ! -name tini \
   -delete
 
 # Remove world-writable permissions.

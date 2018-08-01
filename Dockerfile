@@ -16,7 +16,6 @@ COPY ./src/entry.sh ./src/harden.sh /
 COPY ./src/vars ./src/openssl-easyrsa.cnf ${SVC_HOME}/
 
 RUN apk add --no-cache \
-      dumb-init \
       easy-rsa \
       su-exec \
       tini \
