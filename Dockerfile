@@ -28,4 +28,4 @@ WORKDIR ${SVC_HOME}
 VOLUME ${SVC_HOME}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "sh", "-c", "/entry.sh", "start", "ash", "-c", "'trap : TERM INT; (while true; do sleep 1000; done) & wait'" ]
+CMD [ "sh", "-c", "/entry.sh start ash -c 'trap : TERM INT; (while true; do sleep 1000; done) & wait'" ]
