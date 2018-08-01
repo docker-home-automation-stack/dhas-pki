@@ -1,5 +1,6 @@
 #!/usr/bin/dumb-init /bin/sh
 set -e
+set -x
 
 CMD="$1"; shift
 
