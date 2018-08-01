@@ -17,7 +17,7 @@ COPY ./src/vars ./src/openssl-easyrsa.cnf ${SVC_HOME}/
 
 RUN /entry.sh init \
     \
-    apk add --no-cache \
+    && apk add --no-cache \
       dumb-init \
       easy-rsa \
       su-exec \
