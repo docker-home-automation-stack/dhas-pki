@@ -24,7 +24,6 @@ RUN apk add --no-cache \
     \
     /harden.sh
 
-USER ${SVC_USER}
 WORKDIR ${SVC_HOME}
 VOLUME ${SVC_HOME}
 
