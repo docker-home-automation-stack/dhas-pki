@@ -26,7 +26,7 @@ rm -frv /etc/crontabs
 rm -frv /etc/periodic
 
 # Remove all but a handful of admin commands.
-find /sbin /usr/sbin ! -type d \
+find /sbin /usr/sbin \( ! -type d \
   -a ! -name addgroup \
   -a ! -name adduser \
   -a ! -name login_duo \
@@ -34,13 +34,13 @@ find /sbin /usr/sbin ! -type d \
   -a ! -name setup-proxy \
   -a ! -name sshd \
   -a ! -name tini \
-  -exec rm -fv {};
+  \) -exec rm -fv {};
 
 # Remove world-writable permissions.
 # This breaks apps that need to write to /tmp,
 # such as ssh-agent.
-find / -xdev -type d -perm +0002 -exec chmod o-w {} +
-find / -xdev -type f -perm +0002 -exec chmod o-w {} +
+find / -xdev -type d -perm +0002 -exec chmod -v o-w {} +
+find / -xdev -type f -perm +0002 -exec chmod -v o-w {} +
 
 # Remove unnecessary user accounts.
 sed -i -r "/^(${SERVICE_USER}|root|sshd)/!d" /etc/group
