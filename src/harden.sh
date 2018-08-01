@@ -34,7 +34,7 @@ find /sbin /usr/sbin \( ! -type d \
   -a ! -name setup-proxy \
   -a ! -name sshd \
   -a ! -name tini \
-  \) -exec rm -fv {};
+  \) -exec rm -fv {} \;
 
 # Remove world-writable permissions.
 # This breaks apps that need to write to /tmp,
@@ -72,7 +72,7 @@ find $sysdirs -xdev -type d \
   -exec chmod -v 0755 {} \;
 
 # Remove all suid files.
-find $sysdirs -xdev -type f -a -perm +4000 -exec rm -frv {};
+find $sysdirs -xdev -type f -a -perm +4000 -exec rm -frv {} \;
 
 # Remove other programs that could be dangerous.
 find $sysdirs -xdev \( \
@@ -84,7 +84,7 @@ find $sysdirs -xdev \( \
   -name od -o \
   -name strings -o \
   -name su \
-  \) -exec rm -frv {};
+  \) -exec rm -frv {} \;
 
 # Remove init scripts since we do not use them.
 rm -frv /etc/init.d
