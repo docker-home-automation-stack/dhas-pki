@@ -3,30 +3,34 @@ set -e
 
 CMD="$1"; shift
 
-if [ "${CMD}" = 'init' ] || [ "${CMD}" = 'start' ]; then
+if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' -a "${CMD}" = 'start' ]; then
+  echo "Setting permissions ..."
+  [ ! -s /etc/passwd.orig ] && cp /etc/passwd /etc/passwd.orig
+  [ ! -s /etc/shadow.orig ] && cp /etc/shadow /etc/shadow.orig
+  [ ! -s /etc/group.orig ] && cp /etc/group /etc/group.orig
+  cp -f /etc/passwd.orig /etc/passwd
+  cp -f /etc/shadow.orig /etc/shadow
+  cp -f /etc/group.orig /etc/group
 
-  if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' ]; then
-    [ ! -s /etc/passwd.orig ] && cp /etc/passwd /etc/passwd.orig
-    [ ! -s /etc/shadow.orig ] && cp /etc/shadow /etc/shadow.orig
-    [ ! -s /etc/group.orig ] && cp /etc/group /etc/group.orig
-    cp -f /etc/passwd.orig /etc/passwd
-    cp -f /etc/shadow.orig /etc/shadow
-    cp -f /etc/group.orig /etc/group
+  mkdir -p "${SVC_HOME}"
+  addgroup -g ${SVC_GROUP_ID} ${SVC_GROUP}
+  adduser -h "${SVC_HOME}" -s /bin/nologin -u ${SVC_USER_ID} -D -H -G ${SVC_GROUP} ${SVC_USER}
+  #addgroup ${SVC_USER} bluetooth
+  #addgroup ${SVC_USER} dialout
+  #addgroup ${SVC_USER} tty
+  chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}"
+fi
 
-    mkdir -p "${SVC_HOME}"
-    addgroup -g ${SVC_GROUP_ID} ${SVC_GROUP}
-    adduser -h "${SVC_HOME}" -s /bin/nologin -u ${SVC_USER_ID} -D -H -G ${SVC_GROUP} ${SVC_USER}
-    #addgroup ${SVC_USER} bluetooth
-    #addgroup ${SVC_USER} dialout
-    #addgroup ${SVC_USER} tty
-    chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}"
-
-    [ "${CMD}" = 'start' ] && exec su-exec ${SVC_USER} "$@"
+if [ "${CMD}" = 'start' ]; then
+  if [ "$(id -u)" = '0' ]; then
+    echo "Starting process as user '${SVC_USER}' with UID ${SVC_USER_ID} ..."
+    exec su-exec ${SVC_USER} "$@"
   else
-    [ "${CMD}" = 'start' ] && exec "$@"
+    echo "Starting process as user '$(id -un)' with UID $(id -u) ..."
+    exec ${SVC_USER} "$@"
   fi
-
-  exit 0
+  
+  exit $?
 fi
 
 exit 1
