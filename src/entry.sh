@@ -20,6 +20,8 @@ if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' -a "${CMD}" = 'start' ]; then
   #addgroup ${SVC_USER} dialout
   #addgroup ${SVC_USER} tty
   chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}"
+  
+  [ "${CMD}" = 'init' ] && exit 0
 fi
 
 if [ "${CMD}" = 'start' ]; then
