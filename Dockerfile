@@ -1,11 +1,10 @@
 FROM alpine
 
 RUN apk add --no-cache \
-      bash \
       easy-rsa \
       jq
 
 VOLUME ["/root-ca"]
 VOLUME ["/server-ca"]
 
-CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+CMD exec /bin/sh -c "trap : TERM INT; (while true; do sleep 1000; done) & wait"
