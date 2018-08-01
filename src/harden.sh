@@ -21,18 +21,20 @@ if [[ -f ${moduli} ]]; then
 fi
 
 # Remove existing crontabs, if any.
-rm -fr /var/spool/cron
-rm -fr /etc/crontabs
-rm -fr /etc/periodic
+rm -frv /var/spool/cron
+rm -frv /etc/crontabs
+rm -frv /etc/periodic
 
 # Remove all but a handful of admin commands.
 find /sbin /usr/sbin ! -type d \
+  -a ! -name addgroup \
+  -a ! -name adduser \
   -a ! -name login_duo \
   -a ! -name jq \
   -a ! -name setup-proxy \
   -a ! -name sshd \
   -a ! -name tini \
-  -delete
+  -exec rm -fv {};
 
 # Remove world-writable permissions.
 # This breaks apps that need to write to /tmp,
@@ -56,57 +58,57 @@ sysdirs="
 "
 
 # Remove apk configs.
-find $sysdirs -xdev -regex '.*apk.*' -exec rm -fr {} +
+find $sysdirs -xdev -regex '.*apk.*' -exec rm -frv {} +
 
 # Remove crufty...
 #   /etc/shadow-
 #   /etc/passwd-
 #   /etc/group-
-find $sysdirs -xdev -type f -regex '.*-$' -exec rm -f {} +
+find $sysdirs -xdev -type f -regex '.*-$' -exec rm -fv {} +
 
 # Ensure system dirs are owned by root and not writable by anybody else.
 find $sysdirs -xdev -type d \
-  -exec chown root:root {} \; \
-  -exec chmod 0755 {} \;
+  -exec chown -v root:root {} \; \
+  -exec chmod -v 0755 {} \;
 
 # Remove all suid files.
-find $sysdirs -xdev -type f -a -perm +4000 -delete
+find $sysdirs -xdev -type f -a -perm +4000 -exec rm -frv {};
 
 # Remove other programs that could be dangerous.
 find $sysdirs -xdev \( \
   -name hexdump -o \
-  -name chgrp -o \
-  -name chmod -o \
-  -name chown -o \
-  -name ln -o \
+  # -name chgrp -o \
+  # -name chmod -o \
+  # -name chown -o \
+  # -name ln -o \
   -name od -o \
   -name strings -o \
   -name su \
-  \) -delete
+  \) -exec rm -frv {};
 
 # Remove init scripts since we do not use them.
-rm -fr /etc/init.d
-rm -fr /lib/rc
-rm -fr /etc/conf.d
-rm -fr /etc/inittab
-rm -fr /etc/runlevels
-rm -fr /etc/rc.conf
+rm -frv /etc/init.d
+rm -frv /lib/rc
+rm -frv /etc/conf.d
+rm -frv /etc/inittab
+rm -frv /etc/runlevels
+rm -frv /etc/rc.conf
 
 # Remove kernel tunables since we do not need them.
-rm -fr /etc/sysctl*
-rm -fr /etc/modprobe.d
-rm -fr /etc/modules
-rm -fr /etc/mdev.conf
-rm -fr /etc/acpi
+rm -frv /etc/sysctl*
+rm -frv /etc/modprobe.d
+rm -frv /etc/modules
+rm -frv /etc/mdev.conf
+rm -frv /etc/acpi
 
 # Remove root homedir since we do not need it.
-rm -fr /root
+rm -frv /root
 
 # Remove fstab since we do not need it.
-rm -f /etc/fstab
+rm -fv /etc/fstab
 
 # Remove broken symlinks (because we removed the targets above).
 find $sysdirs -xdev -type l -exec test ! -e {} \; -delete
 
 # delete oneself
-rm -f -- "$0"
+rm -fv -- "$0"
