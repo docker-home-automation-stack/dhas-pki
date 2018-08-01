@@ -13,7 +13,7 @@ ENV SVC_GROUP_ID ${SVC_USER:-40443}
 ENV SVC_HOME ${SVC_HOME:-/${SVC_USER}}
 
 COPY ./src/entry.sh ./src/harden.sh /
-COPY ./src/vars ./src/openssl-easyrsa.cnf ${SVC_HOME}
+COPY ./src/vars ./src/openssl-easyrsa.cnf ${SVC_HOME}/
 
 RUN apk add --no-cache \
       dumb-init \
