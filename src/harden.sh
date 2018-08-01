@@ -1,5 +1,7 @@
 #!/bin/sh
-# Origin: https://raw.githubusercontent.com/ellerbrock/docker-collection/master/dockerfiles/alpine-harden/harden.sh
+# Original script:
+# https://raw.githubusercontent.com/ellerbrock/docker-collection/master/dockerfiles/alpine-harden/harden.sh
+
 set -x
 set -e
 
@@ -77,10 +79,6 @@ find $sysdirs -xdev -type f -a -perm +4000 -exec rm -frv {} \;
 # Remove other programs that could be dangerous.
 find $sysdirs -xdev \( \
   -name hexdump -o \
-  # -name chgrp -o \
-  # -name chmod -o \
-  # -name chown -o \
-  # -name ln -o \
   -name od -o \
   -name strings -o \
   -name su \
