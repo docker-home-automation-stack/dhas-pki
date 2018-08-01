@@ -2,7 +2,8 @@ FROM alpine
 
 RUN apk add --no-cache \
       bash \
-      easy-rsa
+      easy-rsa \
+      jq
 
 VOLUME ["/root-ca"]
 VOLUME ["/server-ca"]
