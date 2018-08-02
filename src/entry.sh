@@ -27,8 +27,8 @@ if [ "${CMD}" = 'start' ]; then
 
   if [ -z "$(find "${SVC_HOME}" -maxdepth 1 | tail -n +2)" ]; then
     cp -r /pki.tmpl/* "${SVC_HOME}/"
-    chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}"
     /usr/local/bin/build-ca.sh
+    chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}"
   fi
 
   if [ "$(id -u)" = '0' ]; then
