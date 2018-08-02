@@ -13,7 +13,7 @@ ENV SVC_GROUP_ID ${SVC_GROUP_ID:-40443}
 ENV SVC_HOME ${SVC_HOME:-/${SVC_USER}}
 
 COPY ./src/harden.sh ./src/entry.sh /
-COPY ./src/pki/* ./src/pki/server-rsa-ca/ ./src/pki/server-ec-ca/ ./src/pki/user-rsa-ca/ ./src/pki/user-ec-ca/ ${SVC_HOME}/
+COPY ./src/pki/* ./src/pki/server-rsa-ca/ ./src/pki/server-ec-ca/ ./src/pki/client-rsa-ca/ ./src/pki/client-ec-ca/ ${SVC_HOME}/
 
 RUN apk add --no-cache \
       dumb-init \
@@ -21,6 +21,7 @@ RUN apk add --no-cache \
       su-exec \
       jq \
     \
+    && ln -s /usr/share/easy-rsa/easyrsa /usr/bin/ \
     && /harden.sh \
     && /entry.sh init
 
