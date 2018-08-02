@@ -24,6 +24,11 @@ if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' -a "${CMD}" = 'start' ]; then
 fi
 
 if [ "${CMD}" = 'start' ]; then
+
+  if [ -n "$(find "${SVC_HOME}" -maxdepth 0 -empty)" ]; then
+    cp -r "/pki.tmpl/*" "${SVC_HOME}/"
+  fi
+
   if [ "$(id -u)" = '0' ]; then
     echo "Starting process as user '${SVC_USER}' with UID ${SVC_USER_ID} ..."
     exec su-exec ${SVC_USER} "$@"
