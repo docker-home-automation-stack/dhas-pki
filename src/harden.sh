@@ -34,10 +34,7 @@ echo "Remove admin commands ..."
 find /sbin /usr/sbin \( ! -type d \
   -a ! -name addgroup \
   -a ! -name adduser \
-  -a ! -name login_duo \
   -a ! -name jq \
-  -a ! -name setup-proxy \
-  -a ! -name sshd \
   -a ! -name su-exec \
   \) -exec rm -fv {} \;
 
