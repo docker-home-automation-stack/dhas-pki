@@ -11,6 +11,7 @@ ENV SVC_USER_ID ${SVC_USER_ID:-40443}
 ENV SVC_GROUP ${SVC_USER:-pki}
 ENV SVC_GROUP_ID ${SVC_GROUP_ID:-40443}
 ENV SVC_HOME ${SVC_HOME:-/${SVC_USER}}
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
 
 COPY ./src/harden.sh ./src/entry.sh /
 COPY ./src/pki/easyrsa ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
