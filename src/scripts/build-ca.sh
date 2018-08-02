@@ -11,7 +11,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   ln -sf ../easyrsa .
   ./easyrsa --batch init-pki
   ./easyrsa --batch --req-cn="${PKI_NAME} Sub CA: ${SUBCA}" --subca-len=0 build-ca nopass subca
-  [ -s dh.pem ] && cp dh.pem data/ || ./easyrsa --batch gen-dh
+  #[ -s dh.pem ] && cp dh.pem data/ || ./easyrsa --batch gen-dh
   
   cd "${SVC_HOME}"
   ./easyrsa --batch import-req "${SUBCA}/data/req/ca.req" "${SUBCA}"

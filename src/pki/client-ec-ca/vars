@@ -203,3 +203,5 @@ set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-client-ec-ca.cnf"
 # or most output. Setting this to any non-blank string enables batch mode.
 
 #set_var EASYRSA_BATCH		""
+
+set_var EASYRSA_NO_UMASK	"1"
