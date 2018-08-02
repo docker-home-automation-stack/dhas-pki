@@ -15,7 +15,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   cd "${SVC_HOME}/${SUBCA}"
   ln -sf /usr/share/easy-rsa/easyrsa .
   ./easyrsa --batch init-pki
-  ./easyrsa --batch --req-cn="${CN} (${TYPE})" --subca-len=0 build-ca nopass subca
+  ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
   [ -s dh.pem ] && cp dh.pem data/ || ./easyrsa --batch gen-dh
   chmod 444 "data/dh.pem"
 
