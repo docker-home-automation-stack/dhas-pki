@@ -15,7 +15,7 @@ ENV PATH .:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 COPY ./src/harden.sh ./src/entry.sh /
 COPY ./src/scripts/*.sh /usr/local/bin/
-COPY ./src/pki/easyrsa ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
+COPY ./src/pki/easyrsa ./src/pki/dh.pem ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
 COPY ./src/pki/x509-types/ /pki.tmpl/x509-types/
 COPY ./src/pki/client-ec-ca/ /pki.tmpl/client-ec-ca/
 COPY ./src/pki/client-rsa-ca/ /pki.tmpl/client-rsa-ca/
