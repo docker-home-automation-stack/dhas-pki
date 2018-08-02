@@ -26,6 +26,7 @@ COPY ./src/pki/server-rsa-ca/ /pki.tmpl/server-rsa-ca/
 
 RUN apk add --no-cache \
       dumb-init \
+      gettext \
       openssl \
       su-exec \
       jq \
