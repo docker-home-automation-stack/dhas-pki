@@ -25,7 +25,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   #cp "data/issued/${SUBCA}.crt" "${SUBCA}/data/ca.crt"
   #cat "data/ca.crt" "${SUBCA}/data/ca.crt" > "${SUBCA}/data/ca-chain.crt"
   #chmod 444 "${SUBCA}/data/ca.crt" "${SUBCA}/data/ca-chain.crt"
-  cat "data/ca.crt" "${SUBCA}/data/ca.crt" > "${SUBCA}/data/ca.crt"
+  cat "data/ca.crt" "data/issued/${SUBCA}.crt" > "${SUBCA}/data/ca.crt"
   chmod 444 "${SUBCA}/data/ca.crt"
 done
 
