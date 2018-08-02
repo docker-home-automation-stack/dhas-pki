@@ -203,3 +203,5 @@ set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-rootca.cnf"
 # or most output. Setting this to any non-blank string enables batch mode.
 
 #set_var EASYRSA_BATCH		""
+
+set_var EASYRSA_UNIQUE_SUBJECT	"${PKI_ROOTCA_UNIQUE_SUBJECT}"

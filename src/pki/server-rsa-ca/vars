@@ -205,3 +205,5 @@ set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-server-rsa-ca.cnf"
 #set_var EASYRSA_BATCH		""
 
 set_var EASYRSA_NO_UMASK	"1"
+
+set_var EASYRSA_UNIQUE_SUBJECT	"${PKI_SERVERCA_UNIQUE_SUBJECT}"

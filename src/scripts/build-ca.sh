@@ -5,7 +5,7 @@ HOME="${SVC_HOME}"
 cd "${SVC_HOME}"
 ln -sf /usr/share/easy-rsa/easyrsa .
 ./easyrsa --batch init-pki
-./easyrsa --batch --req-cn="${PKI_CN_ROOT}" build-ca nopass
+./easyrsa --batch --req-cn="${PKI_ROOTCA_CN}" build-ca nopass
 
 for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   TYPE=$(echo "${SUBCA}" | cut -d "-" -f 1 | tr '[:lower:]' '[:upper:]')
