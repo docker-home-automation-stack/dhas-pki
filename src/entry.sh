@@ -25,7 +25,7 @@ fi
 
 if [ "${CMD}" = 'start' ]; then
 
-  if [ -n "$(find "${SVC_HOME}" -maxdepth 0 -empty)" ]; then
+  if [ -z "$(find "${SVC_HOME}" -maxdepth 1 | tail -n +2)" ]; then
     cp -r /pki.tmpl/* "${SVC_HOME}/"
   fi
 
