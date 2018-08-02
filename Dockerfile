@@ -44,10 +44,12 @@ ENV PATH .:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 COPY ./src/harden.sh ./src/entry.sh /
 COPY ./src/scripts/*.sh /usr/local/bin/
-COPY ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
+COPY ./src/pki/.gitignore ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
 COPY ./src/pki/x509-types/ /pki.tmpl/x509-types/
 COPY ./src/pki/client-ec-ca/ /pki.tmpl/client-ec-ca/
 COPY ./src/pki/client-rsa-ca/ /pki.tmpl/client-rsa-ca/
+COPY ./src/pki/code-ec-ca/ /pki.tmpl/code-ec-ca/
+COPY ./src/pki/code-rsa-ca/ /pki.tmpl/code-rsa-ca/
 COPY ./src/pki/server-ec-ca/ /pki.tmpl/server-ec-ca/
 COPY ./src/pki/server-rsa-ca/ /pki.tmpl/server-rsa-ca/
 
@@ -66,4 +68,4 @@ WORKDIR ${SVC_HOME}
 VOLUME ${SVC_HOME}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "sh", "-c", "/entry.sh start ash -c 'trap : TERM INT; (while true; do sleep 1000; done) & wait'" ]
+CMD [ "sh", "-c", "/entry.sh start ash -c 'trap : TERM INT; (while true; do /usr/local/bin/sign-requests.sh 2>&1 >/dev/null; sleep 10; done) & wait'" ]
