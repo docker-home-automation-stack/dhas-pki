@@ -1,6 +1,6 @@
 #!/bin/sh
 
-REQS="${SVC_HOME}/csr-in"
+REQS="${SVC_HOME}/fifo"
 
 for TYPE in client code server; do
   for ALGO in ec rsa; do
