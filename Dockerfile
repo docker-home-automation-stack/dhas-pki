@@ -5,12 +5,14 @@ ARG SVC_USER_ID
 ARG SVC_GROUP
 ARG SVC_GROUP_ID
 ARG SVC_HOME
+ARG PKI_NAME
 
 ENV SVC_USER ${SVC_USER:-pki}
 ENV SVC_USER_ID ${SVC_USER_ID:-40443}
 ENV SVC_GROUP ${SVC_USER:-pki}
 ENV SVC_GROUP_ID ${SVC_GROUP_ID:-40443}
 ENV SVC_HOME ${SVC_HOME:-/${SVC_USER}}
+ENV PKI_NAME ${PKI_NAME:-House Automation}
 ENV PATH .:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 COPY ./src/harden.sh ./src/entry.sh /

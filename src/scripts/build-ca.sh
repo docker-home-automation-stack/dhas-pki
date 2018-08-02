@@ -1,6 +1,5 @@
 #!/bin/sh
 
-PKI_NAME="House Automation"
 HOME="${SVC_HOME}"
 
 cd "${SVC_HOME}"
