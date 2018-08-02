@@ -80,7 +80,7 @@ set_var EASYRSA_PKI		"$EASYRSA/data"
 #   cn_only  - use just a CN value
 #   org      - use the "traditional" Country/Province/City/Org/OU/email/CN format
 
-#set_var EASYRSA_DN	"cn_only"
+set_var EASYRSA_DN	"org"
 
 # Organizational fields (used with 'org' mode and ignored in 'cn_only' mode.)
 # These are the default values for fields which will be placed in the
@@ -88,12 +88,12 @@ set_var EASYRSA_PKI		"$EASYRSA/data"
 # you may omit any specific field by typing the "." symbol (not valid for
 # email.)
 
-#set_var EASYRSA_REQ_COUNTRY	"US"
-#set_var EASYRSA_REQ_PROVINCE	"California"
-#set_var EASYRSA_REQ_CITY	"San Francisco"
-#set_var EASYRSA_REQ_ORG	"Copyleft Certificate Co"
-#set_var EASYRSA_REQ_EMAIL	"me@example.net"
-#set_var EASYRSA_REQ_OU		"My Organizational Unit"
+set_var EASYRSA_REQ_COUNTRY		${PKI_REQ_COUNTRY}
+set_var EASYRSA_REQ_PROVINCE	${PKI_REQ_PROVINCE}
+set_var EASYRSA_REQ_CITY		${PKI_REQ_CITY}
+set_var EASYRSA_REQ_ORG			${PKI_REQ_ORG}
+set_var EASYRSA_REQ_EMAIL		${PKI_REQ_EMAIL}
+set_var EASYRSA_REQ_OU			${PKI_REQ_OU}
 
 # Choose a size in bits for your keypairs. The recommended value is 2048.  Using
 # 2048-bit keys is considered more than sufficient for many years into the
