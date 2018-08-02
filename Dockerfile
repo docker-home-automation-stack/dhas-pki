@@ -13,7 +13,7 @@ ENV SVC_GROUP_ID ${SVC_GROUP_ID:-40443}
 ENV SVC_HOME ${SVC_HOME:-/${SVC_USER}}
 
 COPY ./src/harden.sh ./src/entry.sh /
-COPY ./src/pki/easyrsa ./src/pki/openssl.cnf ./src/pki/vars ./src/pki/x509-types /pki.tmpl/
+COPY ./src/pki/easyrsa ./src/pki/openssl-rootca.cnf ./src/pki/vars ./src/pki/x509-types /pki.tmpl/
 COPY ./src/pki/client-ec-ca /pki.tmpl/
 COPY ./src/pki/client-rsa-ca /pki.tmpl/
 COPY ./src/pki/server-ec-ca /pki.tmpl/
