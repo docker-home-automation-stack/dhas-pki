@@ -18,7 +18,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   chmod 444 "data/dh.pem"
   
   cd "${SVC_HOME}"
-  ./easyrsa --batch import-req "${SUBCA}/data/req/ca.req" "${SUBCA}"
+  ./easyrsa --batch import-req "${SUBCA}/data/reqs/ca.req" "${SUBCA}"
   ./easyrsa --batch sign-req ca "${SUBCA}"
   cp "data/issued/${SUBCA}.crt" "${SUBCA}/data/ca.crt"
   chmod 444 "${SUBCA}/data/ca.crt"
