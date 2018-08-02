@@ -111,7 +111,7 @@ rm -frv /etc/acpi
 
 # Remove root homedir since we do not need it.
 echo "Remove root homedir content ..."
-rm -frv /root/* /root/.*
+rm -frv /root/*
 
 # Remove fstab since we do not need it.
 echo "Remove fstab ..."
