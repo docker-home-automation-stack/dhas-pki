@@ -110,8 +110,8 @@ rm -frv /etc/mdev.conf
 rm -frv /etc/acpi
 
 # Remove root homedir since we do not need it.
-echo "Remove root homedir ..."
-rm -frv /root
+echo "Remove root homedir content ..."
+rm -frv /root/* /root/.*
 
 # Remove fstab since we do not need it.
 echo "Remove fstab ..."
