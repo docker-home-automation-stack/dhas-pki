@@ -5,3 +5,4 @@
 # demonstrated in the following example:
 
 #crlDistributionPoints = URI:http://example.net/pki/client-ec-ca.crl
+#authorityInfoAccess = OCSP;URI:https://example.net/pki/ocsp
