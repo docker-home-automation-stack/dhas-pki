@@ -5,9 +5,8 @@
 # is included in the signing request.
 
 basicConstraints = CA:FALSE
-nsCertType = email
 subjectKeyIdentifier = hash
 subjectAltName = email:copy
 authorityKeyIdentifier = keyid,issuer:always
 extendedKeyUsage = emailProtection
-keyUsage = digitalSignature, keyEncipherment
+keyUsage = digitalSignature

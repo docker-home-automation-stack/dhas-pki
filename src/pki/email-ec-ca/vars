@@ -138,7 +138,7 @@ set_var EASYRSA_CERT_EXPIRE	3665
 # nsCertType=server attribute, and also get any NS_COMMENT defined below in the
 # nsComment field.
 
-set_var EASYRSA_NS_SUPPORT	"yes"
+#set_var EASYRSA_NS_SUPPORT	"no"
 
 # When NS_SUPPORT is set to "yes", this field is added as the nsComment field.
 # Set this blank to omit it. With NS_SUPPORT set to "no" this field is ignored.
