@@ -47,7 +47,7 @@ fi
 # itself, which is also where the configuration files are located in the
 # easy-rsa tree.
 
-set_var EASYRSA	"${SVC_HOME}/code-ec-ca"
+set_var EASYRSA	"${SVC_HOME}/email-ec-ca"
 
 # If your OpenSSL command is not in the system PATH, you will need to define the
 # path to it here. Normally this means a full path to the executable, otherwise
@@ -80,7 +80,7 @@ set_var EASYRSA_PKI		"$EASYRSA/data"
 #   cn_only  - use just a CN value
 #   org      - use the "traditional" Country/Province/City/Org/OU/email/CN format
 
-#set_var EASYRSA_DN	"cn_only"
+set_var EASYRSA_DN	"org"
 
 # Organizational fields (used with 'org' mode and ignored in 'cn_only' mode.)
 # These are the default values for fields which will be placed in the
@@ -184,7 +184,7 @@ set_var EASYRSA_TEMP_FILE	"/dev/shm/extensions.temp"
 # specific and you cannot just use a standard config file, so this is an
 # advanced feature.
 
-set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-code-ec-ca.cnf"
+set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-email-ec-ca.cnf"
 
 # Default CN:
 # This is best left alone. Interactively you will set this manually, and BATCH
@@ -204,4 +204,4 @@ set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-code-ec-ca.cnf"
 
 #set_var EASYRSA_BATCH		""
 
-set_var EASYRSA_UNIQUE_SUBJECT	"${PKI_CODECA_UNIQUE_SUBJECT}"
+set_var EASYRSA_UNIQUE_SUBJECT	"${PKI_CLIENTCA_UNIQUE_SUBJECT}"

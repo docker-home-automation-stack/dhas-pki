@@ -117,11 +117,11 @@ set_var EASYRSA_KEY_SIZE	4096
 
 # In how many days should the root CA key expire?
 
-set_var EASYRSA_CA_EXPIRE	5475
+set_var EASYRSA_CA_EXPIRE	5490
 
 # In how many days should certificates expire?
 
-set_var EASYRSA_CERT_EXPIRE	3680
+set_var EASYRSA_CERT_EXPIRE	3665
 
 # How many days until the next CRL publish date?  Note that the CRL can still be
 # parsed after this timeframe passes. It is only used for an expected next

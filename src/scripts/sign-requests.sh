@@ -2,7 +2,7 @@
 
 REQS="${SVC_HOME}/fifo"
 
-for TYPE in client code server; do
+for TYPE in client code email server; do
   for ALGO in ec rsa; do
     mkdir -p "${REQS}/${TYPE}/${ALGO}"
     chmod 551 "${REQS}" "${REQS}/${TYPE}"

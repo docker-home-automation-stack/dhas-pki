@@ -9,6 +9,7 @@ ARG SVC_HOME
 ARG PKI_ROOTCA_CN
 ARG PKI_CLIENTCA_CN
 ARG PKI_CODECA_CN
+ARG PKI_EMAILCA_CN
 ARG PKI_SERVERCA_CN
 ARG PKI_REQ_COUNTRY
 ARG PKI_REQ_PROVINCE
@@ -18,6 +19,7 @@ ARG PKI_REQ_EMAIL
 ARG PKI_REQ_OU
 # ARG CRT_CLIENT
 # ARG CRT_CODE
+# ARG CRT_EMAIL
 # ARG CRT_SERVER
 
 ENV SVC_USER ${SVC_USER:-pki}
@@ -32,6 +34,8 @@ ENV PKI_CLIENTCA_CN ${PKI_CLIENTCA_CN:-Client Sub CA}
 ENV PKI_CLIENTCA_UNIQUE_SUBJECT ${PKI_CLIENTCA_UNIQUE_SUBJECT:-no}
 ENV PKI_CODECA_CN ${PKI_CODECA_CN:-Code Signing Sub CA}
 ENV PKI_CODECA_UNIQUE_SUBJECT ${PKI_CODECA_UNIQUE_SUBJECT:-no}
+ENV PKI_EMAILCA_CN ${PKI_SERVERCA_CN:-Email Sub CA}
+ENV PKI_EMAILCA_UNIQUE_SUBJECT ${PKI_SERVERCA_UNIQUE_SUBJECT:-no}
 ENV PKI_SERVERCA_CN ${PKI_SERVERCA_CN:-Server Sub CA}
 ENV PKI_SERVERCA_UNIQUE_SUBJECT ${PKI_SERVERCA_UNIQUE_SUBJECT:-no}
 
@@ -49,7 +53,7 @@ ENV PATH .:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 COPY ./src/harden.sh ./src/entry.sh /
 COPY ./src/scripts/*.sh /usr/local/bin/
-COPY ./src/pki/.gitignore ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
+COPY ./src/pki/.gitignore ./src/pki/easyrsa ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
 COPY ./src/pki/x509-types/ /pki.tmpl/x509-types/
 COPY ./src/pki/client-ec-ca/ /pki.tmpl/client-ec-ca/
 COPY ./src/pki/client-rsa-ca/ /pki.tmpl/client-rsa-ca/

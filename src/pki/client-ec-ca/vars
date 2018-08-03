@@ -80,7 +80,7 @@ set_var EASYRSA_PKI		"$EASYRSA/data"
 #   cn_only  - use just a CN value
 #   org      - use the "traditional" Country/Province/City/Org/OU/email/CN format
 
-set_var EASYRSA_DN	"org"
+#set_var EASYRSA_DN	"cn_only"
 
 # Organizational fields (used with 'org' mode and ignored in 'cn_only' mode.)
 # These are the default values for fields which will be placed in the
@@ -117,11 +117,11 @@ set_var EASYRSA_CURVE		secp384r1
 
 # In how many days should the root CA key expire?
 
-#set_var EASYRSA_CA_EXPIRE	3650
+set_var EASYRSA_CA_EXPIRE	3665
 
 # In how many days should certificates expire?
 
-#set_var EASYRSA_CERT_EXPIRE	3650
+set_var EASYRSA_CERT_EXPIRE	3665
 
 # How many days until the next CRL publish date?  Note that the CRL can still be
 # parsed after this timeframe passes. It is only used for an expected next
@@ -203,7 +203,5 @@ set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-client-ec-ca.cnf"
 # or most output. Setting this to any non-blank string enables batch mode.
 
 #set_var EASYRSA_BATCH		""
-
-set_var EASYRSA_NO_UMASK	"1"
 
 set_var EASYRSA_UNIQUE_SUBJECT	"${PKI_CLIENTCA_UNIQUE_SUBJECT}"
