@@ -24,21 +24,19 @@ if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' -a "${CMD}" = 'start' ]; then
 fi
 
 if [ "${CMD}" = 'start' ]; then
+  SUEXEC=""
+  [ "$(id -u)" = '0' ] && SUEXEC="su-exec ${SVC_USER}"
 
-  if [ -z "$(find "${SVC_HOME}" -maxdepth 1 | tail -n +2)" ]; then
-    cp -r /pki.tmpl/* "${SVC_HOME}/"
-    /usr/local/bin/build-ca.sh
-    chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}"
-  fi
+  [ -z "$(find "${SVC_HOME}" -maxdepth 1 | tail -n +2)" ] && ${SUEXEC} /usr/local/bin/build-ca.sh
+  ${SUEXEC} /usr/local/bin/gen-certs.sh
 
   if [ "$(id -u)" = '0' ]; then
     echo "Starting process as user '${SVC_USER}' with UID ${SVC_USER_ID} ..."
-    exec su-exec ${SVC_USER} "$@"
   else
     echo "Starting process as user '$(id -un)' with UID $(id -u) ..."
-    exec ${SVC_USER} "$@"
   fi
-  
+
+  exec ${SUEXEC} "$@"
   exit $?
 fi
 

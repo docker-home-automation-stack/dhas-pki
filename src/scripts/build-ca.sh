@@ -3,6 +3,9 @@
 HOME="${SVC_HOME}"
 
 cd "${SVC_HOME}"
+
+cp -r /pki.tmpl/* ./
+
 [ -s ./easyrsa ] || ln -sf /usr/share/easy-rsa/easyrsa .
 ./easyrsa --batch init-pki
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN}" build-ca nopass
@@ -10,7 +13,7 @@ cd "${SVC_HOME}"
 for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   TYPE=$(echo "${SUBCA}" | cut -d "-" -f 1 | tr '[:lower:]' '[:upper:]')
   ALGO=$(echo "${SUBCA}" | cut -d "-" -f 2 | tr '[:lower:]' '[:upper:]')
-  CN=$(eval "echo \${PKI_CN_$TYPE:-$SUBCA}")
+  CN=$(eval "echo \${PKI_${TYPE}CA_CN:-$SUBCA}")
 
   cd "${SVC_HOME}/${SUBCA}"
   ln -sf ../easyrsa .

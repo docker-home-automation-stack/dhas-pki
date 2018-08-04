@@ -5,8 +5,7 @@ REQS="${SVC_HOME}/fifo"
 for TYPE in client code email server; do
   for ALGO in ec rsa; do
     mkdir -p "${REQS}/${TYPE}/${ALGO}"
-    chmod 551 "${REQS}" "${REQS}/${TYPE}"
-    chmod 751 "${REQS}/${TYPE}/${ALGO}"
+    chmod 751 "${REQS}" "${REQS}/${TYPE}" "${REQS}/${TYPE}/${ALGO}"
 
     # search per requestor directory
     for REQUESTOR in $(cd "${REQS}/${TYPE}/${ALGO}"; ls); do
@@ -59,6 +58,8 @@ for TYPE in client code email server; do
         BASENAME="${REQUESTOR}-${FILENAME%.*}"
 
         [ -s "${REQ%.*}".crt ] || continue # continue only when cert file still exists
+
+        #TODO: renew (almost) expired certificates
       done
 
     done
