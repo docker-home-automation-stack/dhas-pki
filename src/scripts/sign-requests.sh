@@ -44,7 +44,7 @@ for TYPE in client code email server; do
         # copy CA chain
         cp -f "data/ca.crt" "${REQ%.*}".ca.crt
         cp -f "data/ca-chain.crt" "${REQ%.*}".ca-chain.crt
-        chmod 444 "${REQ}.signed" "${REQ}.signed.txt" "${REQ%.*}".crt "${REQ%.*}".ca.crt "${REQ%.*}".ca-chain.crt
+        chmod 664 "${REQ}.signed" "${REQ}.signed.txt" "${REQ%.*}".crt "${REQ%.*}".ca.crt "${REQ%.*}".ca-chain.crt
 
         echo "$RET_TXT" > "${REQ}.signed.txt"
         mv "${REQ}" "${REQ}.signed"
