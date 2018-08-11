@@ -14,6 +14,8 @@ for TYPE in client code email server; do
     CN=$(echo "${NAMES}" | cut -d "," -f1)
     CN=${CN//\*\./}
     SAN="DNS:${NAMES//,/,DNS:}"
+    
+    [ "${CN}" = "ca" ] && continue # ensure one cannot do any processing on CA certificate files
 
     for ALGO in ec rsa; do
       mkdir -p "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
@@ -30,6 +32,7 @@ for TYPE in client code email server; do
 
       if [ "${RET_CODE}" = '0' ]; then
         mv data/reqs/${CN}.req "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
+        mv data/private/${CN}.key "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
       fi
 
     done
