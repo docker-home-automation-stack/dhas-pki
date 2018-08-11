@@ -20,19 +20,21 @@ for TYPE in client code email server; do
         cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
 
         # import into PKI
-        RET_TXT=$(./easyrsa --batch import-req "${REQ}" "${BASENAME}")
+        echo "Importing '${REQ}' as '${BASENAME}' to PKI ${TYPE}-${ALGO}-ca"
+        RET_TXT=$(./easyrsa --batch import-req "${REQ}" "${BASENAME}" 2>&1)
         RET_CODE=$?
 
         # sign request
         if [ "${RET_CODE}" = '0' ]; then
-          RET_TXT=$(./easyrsa --batch sign-req "${BASENAME}")
+          echo "[${TYPE}-${ALGO}-ca] Signing '${BASENAME}'"
+          RET_TXT=$(./easyrsa --batch sign-req ${TYPE} "${BASENAME}" 2>&1)
           RET_CODE=$?
         fi
 
         # if signing failed, rename request
         if [ ${RET_CODE} != 0 ]; then
           rm -f "data/reqs/${BASENAME}.req"
-          echo "$RET_TXT" > "${REQ}.error.txt"
+          echo "${RET_TXT}" > "${REQ}.error.txt"
           mv "${REQ}" "${REQ}.error"
           continue
         fi

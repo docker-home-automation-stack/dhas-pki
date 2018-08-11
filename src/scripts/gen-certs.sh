@@ -25,7 +25,7 @@ for TYPE in client code email server; do
       
       echo "Generating request '${CN}' with SAN '${SAN}"
 
-      RET_TXT=$(./easyrsa --batch --subject-alt-name="${SAN}" gen-req "${CN}" nopass)
+      RET_TXT=$(./easyrsa --batch --subject-alt-name="${SAN}" --req-cn="${CN}" gen-req "${CN}" nopass)
       RET_CODE=$?
 
       if [ "${RET_CODE}" = '0' ]; then
