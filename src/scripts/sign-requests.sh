@@ -47,9 +47,13 @@ for TYPE in client code email server; do
         cp -f "data/ca.crt" "${REQ%.*}".ca.crt
         cp -f "data/ca-chain.crt" "${REQ%.*}".ca-chain.crt
 
+        # certificate variants
+        cat "data/ca-chain.crt" "data/issued/${BASENAME}.crt" > "${REQ%.*}".full.crt
+
+        # finishing
         echo "$RET_TXT" > "${REQ}.signed.txt"
         mv "${REQ}" "${REQ}.signed"
-        chmod 644 "${REQ}.signed" "${REQ}.signed.txt" "${REQ%.*}".crt "${REQ%.*}".ca.crt "${REQ%.*}".ca-chain.crt
+        chmod 644 "${REQ}.signed" "${REQ}.signed.txt" "${REQ%.*}".crt "${REQ%.*}".full.crt "${REQ%.*}".ca.crt "${REQ%.*}".ca-chain.crt
       done
 
       # search for signed requests
