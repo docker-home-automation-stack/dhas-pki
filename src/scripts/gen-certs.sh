@@ -3,6 +3,8 @@
 i=0
 REQS="${SVC_HOME}/fifo"
 
+[ ! -s "${SVC_HOME}/easyrsa" ] && exit 1
+
 for TYPE in client code email server; do
 
   while true; do

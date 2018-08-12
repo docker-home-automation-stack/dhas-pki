@@ -27,7 +27,7 @@ if [ "${CMD}" = 'start' ]; then
   SUEXEC=""
   [ "$(id -u)" = '0' ] && SUEXEC="su-exec ${SVC_USER}"
 
-  [ -z "$(find "${SVC_HOME}" -maxdepth 1 | tail -n +2)" ] && ${SUEXEC} /usr/local/bin/build-ca.sh
+  [ ! -s "${SVC_HOME}/easyrsa" ] && /usr/local/bin/build-ca.sh
   ${SUEXEC} /usr/local/bin/gen-certs.sh
 
   if [ "$(id -u)" = '0' ]; then
