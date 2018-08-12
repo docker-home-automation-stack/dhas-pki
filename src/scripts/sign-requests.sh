@@ -26,8 +26,10 @@ for TYPE in client code email server; do
 
         # sign request
         if [ "${RET_CODE}" = '0' ]; then
+          SAN=$(openssl req -in "${REQ}" -text -noout | grep -A 1 "Subject Alternative Name:" | tail -n +2 | sed -e "s/ //g")
+          [ ! "${SAN}" = "" ] && SAN="--subject-alt-name=\"${SAN}\""
           echo "[${TYPE}-${ALGO}-ca] Signing '${BASENAME}'"
-          RET_TXT=$(./easyrsa --batch --copy-ext sign-req ${TYPE} "${BASENAME}" 2>&1)
+          RET_TXT=$(./easyrsa --batch ${SAN} sign-req ${TYPE} "${BASENAME}" 2>&1)
           RET_CODE=$?
         fi
 
