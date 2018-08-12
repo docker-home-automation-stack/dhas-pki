@@ -3,7 +3,7 @@ set -e
 
 CMD="$1"; shift
 
-if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' -a "${CMD}" = 'start' ]; then
+if [ "${CMD}" = 'init' ] || [ "${CMD}" = 'start' ]; then
   echo "Setting permissions ..."
   [ ! -s /etc/passwd.orig ] && cp /etc/passwd /etc/passwd.orig
   [ ! -s /etc/shadow.orig ] && cp /etc/shadow /etc/shadow.orig
@@ -18,24 +18,49 @@ if [ "${CMD}" = 'init' ] || [ "$(id -u)" = '0' -a "${CMD}" = 'start' ]; then
   #addgroup ${SVC_USER} bluetooth
   #addgroup ${SVC_USER} dialout
   #addgroup ${SVC_USER} tty
-  chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}"
 
   [ "${CMD}" = 'init' ] && exit 0
 fi
 
 if [ "${CMD}" = 'start' ]; then
-  SUEXEC=""
-  [ "$(id -u)" = '0' ] && SUEXEC="su-exec ${SVC_USER}"
+  SUEXEC="su-exec ${SVC_USER}"
 
   [ ! -s "${SVC_HOME}/easyrsa" ] && /usr/local/bin/build-ca.sh
+
+  # enforce directory and file permissions for Root CA
+  cd "${SVC_HOME}"
+  chown -R -h root:root $(ls -A | grep -v fifo)
+  chown -R -h root:${SVC_GROUP} .rnd
+  chown -R -h ${SVC_USER}:${SVC_GROUP} fifo
+  find $(ls -A | grep -v fifo) -type d -exec chmod 700 {} \;
+  find $(ls -A | grep -v fifo) -type f -exec chmod 600 {} \;
+  chmod 751 "${SVC_HOME}/fifo"
+  chmod 555 easyrsa
+  chmod 755 fifo
+  chmod 660 .rnd
+
+  # enforce directory and file permissions for every Sub CA
+  for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
+    mkdir -p "${SVC_HOME}/fifo/${SUBCA/-*}" "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
+    chmod 751 "${SVC_HOME}/fifo/${SUBCA/-*}"
+    chmod 711 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
+    chmod 777 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)/*"
+
+    cd "${SVC_HOME}/${SUBCA}"
+    chown -R -h ${SVC_USER}:${SVC_GROUP} .
+    chmod 755 . data
+    chmod 644 data/dh.pem data/ca.crt data/ca-chain.crt
+    chmod 444 data/ca*.crt data/dh.pem
+    if [ -e data/ecparams ]; then
+      chmod 755 data/ecparams
+      chmod 444 data/ecparams/*.pem
+    fi
+  done
+
+  # generate requests based on environment variables
   ${SUEXEC} /usr/local/bin/gen-certs.sh
 
-  if [ "$(id -u)" = '0' ]; then
-    echo "Starting process as user '${SVC_USER}' with UID ${SVC_USER_ID} ..."
-  else
-    echo "Starting process as user '$(id -un)' with UID $(id -u) ..."
-  fi
-
+  echo "Starting process as user '${SVC_USER}' with UID ${SVC_USER_ID} ..."
   exec ${SUEXEC} "$@"
   exit $?
 fi

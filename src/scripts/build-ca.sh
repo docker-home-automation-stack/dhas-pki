@@ -20,14 +20,12 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   ./easyrsa --batch init-pki
   ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
   [ -s dh.pem ] && cp dh.pem data/ || ./easyrsa --batch gen-dh
-  chmod 664 "data/dh.pem"
 
   cd "${SVC_HOME}"
   ./easyrsa --batch import-req "${SUBCA}/data/reqs/ca.req" "${SUBCA}"
   ./easyrsa --batch sign-req ca "${SUBCA}"
   cp "data/issued/${SUBCA}.crt" "${SUBCA}/data/ca.crt"
   cat "data/ca.crt" "${SUBCA}/data/ca.crt" > "${SUBCA}/data/ca-chain.crt"
-  chmod 664 "${SUBCA}/data/ca.crt" "${SUBCA}/data/ca-chain.crt"
 done
 
 cd "${SVC_HOME}"
