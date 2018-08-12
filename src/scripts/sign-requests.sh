@@ -4,8 +4,6 @@ REQS="${SVC_HOME}/fifo"
 
 for TYPE in client code email server; do
   for ALGO in ec rsa; do
-    mkdir -p "${REQS}/${TYPE}/${ALGO}"
-    chmod 751 "${REQS}" "${REQS}/${TYPE}" "${REQS}/${TYPE}/${ALGO}"
 
     # search per requestor directory
     for REQUESTOR in $(cd "${REQS}/${TYPE}/${ALGO}"; ls); do
