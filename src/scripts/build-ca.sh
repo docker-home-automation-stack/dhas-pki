@@ -6,7 +6,12 @@ cd "${SVC_HOME}"
 
 cp -r /pki.tmpl/* ./
 
-[ -s ./easyrsa ] || ln -sf /usr/share/easy-rsa/easyrsa .
+if [ -s ./easyrsa ]; then
+  rm easyrsa
+  ln -sf /pki.tmpl/easyrsa .
+else
+  ln -sf /usr/share/easy-rsa/easyrsa .
+fi
 ./easyrsa --batch init-pki
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN}" build-ca nopass
 
