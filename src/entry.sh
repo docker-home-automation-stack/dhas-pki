@@ -43,7 +43,7 @@ if [ "${CMD}" = 'start' ]; then
     mkdir -p "${SVC_HOME}/fifo/${SUBCA/-*}" "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
     chmod 751 "${SVC_HOME}/fifo/${SUBCA/-*}"
     chmod 711 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-    chmod 777 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)/*"
+    [ -n "$(ls ${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)/)" ] && chmod 777 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)/*"
 
     cd "${SVC_HOME}/${SUBCA}"
     chown -R -h ${SVC_USER}:${SVC_GROUP} .
