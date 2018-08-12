@@ -48,7 +48,7 @@ for TYPE in client code email server; do
         cp -f "data/ca-chain.crt" "${REQ%.*}".ca-chain.crt
 
         # certificate variants
-        cat "data/ca-chain.crt" "data/issued/${BASENAME}.crt" > "${REQ%.*}".full.crt
+        cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
 
         # finishing
         echo "$RET_TXT" > "${REQ}.signed.txt"

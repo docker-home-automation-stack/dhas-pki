@@ -30,7 +30,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   ./easyrsa --batch import-req "${SUBCA}/data/reqs/ca.req" "${SUBCA}"
   ./easyrsa --batch sign-req ca "${SUBCA}"
   cp "data/issued/${SUBCA}.crt" "${SUBCA}/data/ca.crt"
-  cat "data/ca.crt" "${SUBCA}/data/ca.crt" > "${SUBCA}/data/ca-chain.crt"
+  cat "${SUBCA}/data/ca.crt" "data/ca.crt" > "${SUBCA}/data/ca-chain.crt"
 done
 
 cd "${SVC_HOME}"
