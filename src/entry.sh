@@ -30,7 +30,7 @@ if [ "${CMD}" = 'start' ]; then
   # enforce directory and file permissions for Root CA
   cd "${SVC_HOME}"
   chown -R -h root:root $(ls -A | grep -v fifo)
-  chown -R -h root:${SVC_GROUP} .rnd
+  chown -R -h root:${SVC_GROUP} . .rnd
   chown -R -h ${SVC_USER}:${SVC_GROUP} fifo
   find $(ls -A | grep -v fifo) -type d -exec chmod 700 {} \;
   find $(ls -A | grep -v fifo) -type f -exec chmod 600 {} \;
