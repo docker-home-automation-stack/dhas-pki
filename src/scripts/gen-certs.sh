@@ -33,6 +33,7 @@ for TYPE in client code email server; do
       if [ "${RET_CODE}" = '0' ]; then
         mv data/reqs/${CN}.req "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
         mv data/private/${CN}.key "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
+        chmod 640 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.key"
       fi
 
     done

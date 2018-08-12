@@ -27,7 +27,7 @@ for TYPE in client code email server; do
         # sign request
         if [ "${RET_CODE}" = '0' ]; then
           echo "[${TYPE}-${ALGO}-ca] Signing '${BASENAME}'"
-          RET_TXT=$(./easyrsa --batch sign-req ${TYPE} "${BASENAME}" 2>&1)
+          RET_TXT=$(./easyrsa --batch --copy-ext sign-req ${TYPE} "${BASENAME}" 2>&1)
           RET_CODE=$?
         fi
 
@@ -49,7 +49,7 @@ for TYPE in client code email server; do
 
         echo "$RET_TXT" > "${REQ}.signed.txt"
         mv "${REQ}" "${REQ}.signed"
-        chmod 664 "${REQ}.signed" "${REQ}.signed.txt" "${REQ%.*}".crt "${REQ%.*}".ca.crt "${REQ%.*}".ca-chain.crt
+        chmod 644 "${REQ}.signed" "${REQ}.signed.txt" "${REQ%.*}".crt "${REQ%.*}".ca.crt "${REQ%.*}".ca-chain.crt
       done
 
       # search for signed requests
