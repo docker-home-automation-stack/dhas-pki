@@ -12,7 +12,7 @@ for TYPE in client code email server; do
       for REQ in $(find "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}" -type f -regex "^.*\.csr$" -o -regex "^.*\.req$"); do
         [ -s "${REQ%.*}".crt ] && continue # ignore already signed certificate
         FILENAME="${REQ##*/}"
-        BASENAME="${REQUESTOR}-${FILENAME%.*}"
+        BASENAME="${REQUESTOR}--${FILENAME%.*}"
 
         cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
 

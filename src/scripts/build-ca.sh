@@ -26,7 +26,8 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   ln -sf ../easyrsa .
   ./easyrsa --batch init-pki
   ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
-  [ -s dh.pem ] && cp dh.pem data/ || ./easyrsa --batch gen-dh
+  [ -s dh.pem ] && mv dh.pem data/
+  [ ! -s data/dh.pem ] && ./easyrsa --batch gen-dh
 
   # sign Sub CA with Root CA
   cd "${SVC_HOME}"
