@@ -14,6 +14,7 @@ else
 fi
 ./easyrsa --batch init-pki
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN}" build-ca nopass
+./easyrsa --batch gen-crl
 
 for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   TYPE=$(echo "${SUBCA}" | cut -d "-" -f 1 | tr '[:lower:]' '[:upper:]')
@@ -24,6 +25,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   ln -sf ../easyrsa .
   ./easyrsa --batch init-pki
   ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
+  ./easyrsa --batch gen-crl
   [ -s dh.pem ] && cp dh.pem data/ || ./easyrsa --batch gen-dh
 
   cd "${SVC_HOME}"
