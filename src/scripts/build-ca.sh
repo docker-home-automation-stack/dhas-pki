@@ -21,18 +21,23 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   ALGO=$(echo "${SUBCA}" | cut -d "-" -f 2 | tr '[:lower:]' '[:upper:]')
   CN=$(eval "echo \${PKI_${TYPE}CA_CN:-$SUBCA}")
 
+  # create CA and signing request
   cd "${SVC_HOME}/${SUBCA}"
   ln -sf ../easyrsa .
   ./easyrsa --batch init-pki
   ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
-  ./easyrsa --batch gen-crl
   [ -s dh.pem ] && cp dh.pem data/ || ./easyrsa --batch gen-dh
 
+  # sign Sub CA with Root CA
   cd "${SVC_HOME}"
   ./easyrsa --batch import-req "${SUBCA}/data/reqs/ca.req" "${SUBCA}"
   ./easyrsa --batch sign-req ca "${SUBCA}"
   cp "data/issued/${SUBCA}.crt" "${SUBCA}/data/ca.crt"
   cat "${SUBCA}/data/ca.crt" "data/ca.crt" > "${SUBCA}/data/ca-chain.crt"
+
+  # Generate CRL for Sub CA
+  cd "${SVC_HOME}/${SUBCA}"
+  ./easyrsa --batch gen-crl
 done
 
 cd "${SVC_HOME}"
