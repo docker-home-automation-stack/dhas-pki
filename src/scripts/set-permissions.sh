@@ -1,4 +1,5 @@
 #!/bin/sh
+set +e
 
 # enforce directory and file permissions for Root CA
 cd "${SVC_HOME}"
@@ -11,7 +12,7 @@ find $(ls -A | grep -v fifo) -type f -exec chmod 600 {} \;
 chmod 751 . fifo
 chmod 555 easyrsa
 chmod 660 .rnd
-chmod 444 data/ca*.crt data/dh.pem
+chmod 444 data/ca.crt
 chmod 644 data/crl.pem
 chmod 600 data/private/*
 
@@ -36,3 +37,4 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   chmod 600 data/private/*
 done
 
+exit 0
