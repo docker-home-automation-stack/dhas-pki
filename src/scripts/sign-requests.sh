@@ -46,8 +46,19 @@ for TYPE in client code email server; do
         cp -f "data/ca.crt" "${REQ%.*}".ca.crt
         cp -f "data/ca-chain.crt" "${REQ%.*}".ca-chain.crt
 
+        # generate password file
+        if [ ! -s "${REQ%.*}".passwd ]; then
+          if [ "${TYPE}" = 'client' ] || [ "${TYPE}" = 'email' ]; then
+            pwgen -1Bcn 12 1 > "${REQ%.*}".passwd
+          else
+            pwgen -1sy 42 1 > "${REQ%.*}".passwd
+          fi
+        fi
+
         # certificate variants
         cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
+        openssl pkcs12 -export -out "${REQ%.*}".nopasswd.pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
+        openssl pkcs12 -export -out "${REQ%.*}".pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd
 
         # finishing
         echo "$RET_TXT" > "${REQ}.signed.txt"

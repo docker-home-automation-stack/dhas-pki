@@ -63,6 +63,7 @@ RUN apk add --no-cache \
       easy-rsa \
       gettext \
       openssl \
+      pwgen \
       su-exec \
       jq \
     \
