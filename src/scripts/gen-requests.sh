@@ -21,7 +21,6 @@ for TYPE in client code email server; do
 
     for ALGO in ec rsa; do
       mkdir -p "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
-#      chmod 751 "${REQS}" "${REQS}/${TYPE}" "${REQS}/${TYPE}/${ALGO}"
       
       [[ -s "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.req.signed" || -s "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.csr.signed" ]] && continue
 
@@ -35,7 +34,6 @@ for TYPE in client code email server; do
       if [ "${RET_CODE}" = '0' ]; then
         mv data/reqs/${CN}.req "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
         mv data/private/${CN}.key "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
-#        chmod 640 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.key"
       fi
 
     done

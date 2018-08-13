@@ -26,7 +26,7 @@ if [ "${CMD}" = 'start' ]; then
   /usr/local/bin/set-permissions.sh
 
   # generate requests based on environment variables
-  ${SUEXEC} /usr/local/bin/gen-certs.sh
+  ${SUEXEC} /usr/local/bin/gen-requests.sh
 
   echo "Starting process as user '${SVC_USER}' with UID ${SVC_USER_ID} ..."
   exec ${SUEXEC} "$@"

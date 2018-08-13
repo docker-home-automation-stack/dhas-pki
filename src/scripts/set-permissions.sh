@@ -10,6 +10,7 @@ chown -R -h ${SVC_USER}:${SVC_GROUP} fifo
 find $(ls -A | grep -v fifo) -type d -exec chmod 700 {} \;
 find $(ls -A | grep -v fifo) -type f -exec chmod 600 {} \;
 chmod 751 . fifo
+chmod 750 data
 chmod 555 easyrsa
 chmod 660 .rnd
 chmod 444 data/ca.crt
