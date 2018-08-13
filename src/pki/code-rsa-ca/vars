@@ -196,7 +196,7 @@ set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-code-rsa-ca.cnf"
 # Do not change this default unless you understand the security implications.
 # Valid choices include: md5, sha1, sha256, sha224, sha384, sha512
 
-#set_var EASYRSA_DIGEST		"sha256"
+set_var EASYRSA_DIGEST		"sha384"
 
 # Batch mode. Leave this disabled unless you intend to call Easy-RSA explicitly
 # in batch mode without any user input, confirmation on dangerous operations,

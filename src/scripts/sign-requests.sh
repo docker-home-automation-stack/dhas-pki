@@ -3,7 +3,7 @@
 REQS="${SVC_HOME}/fifo"
 
 for TYPE in client code email server; do
-  for ALGO in ec rsa; do
+  for ALGO in ecc rsa; do
 
     # search per requestor directory
     for REQUESTOR in $(cd "${REQS}/${TYPE}/${ALGO}"; ls); do

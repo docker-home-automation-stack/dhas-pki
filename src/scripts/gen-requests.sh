@@ -19,7 +19,7 @@ for TYPE in client code email server; do
 
     [ "${CN}" = "ca" ] && continue # ensure one cannot do any processing on CA certificate files
 
-    for ALGO in ec rsa; do
+    for ALGO in ecc rsa; do
       mkdir -p "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
       chmod 751 "${REQS}" "${REQS}/${TYPE}" "${REQS}/${TYPE}/${ALGO}"
 

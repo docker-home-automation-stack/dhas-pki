@@ -49,13 +49,15 @@ ENV PATH .:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 COPY ./src/harden.sh ./src/entry.sh /
 COPY ./src/scripts/*.sh /usr/local/bin/
-COPY ./src/easyrsa ./src/pki/.gitignore ./src/pki/openssl-rootca.cnf ./src/pki/vars /pki.tmpl/
+COPY ./src/easyrsa ./src/pki/.gitignore /pki.tmpl/
 COPY ./src/pki/x509-types/ /pki.tmpl/x509-types/
-COPY ./src/pki/client-ec-ca/ /pki.tmpl/client-ec-ca/
+COPY ./src/pki/root-ecc-ca/ /pki.tmpl/root-ecc-ca/
+COPY ./src/pki/root-rsa-ca/ /pki.tmpl/root-rsa-ca/
+COPY ./src/pki/client-ecc-ca/ /pki.tmpl/client-ecc-ca/
 COPY ./src/pki/client-rsa-ca/ /pki.tmpl/client-rsa-ca/
-COPY ./src/pki/code-ec-ca/ /pki.tmpl/code-ec-ca/
+COPY ./src/pki/code-ecc-ca/ /pki.tmpl/code-ecc-ca/
 COPY ./src/pki/code-rsa-ca/ /pki.tmpl/code-rsa-ca/
-COPY ./src/pki/server-ec-ca/ /pki.tmpl/server-ec-ca/
+COPY ./src/pki/server-ecc-ca/ /pki.tmpl/server-ecc-ca/
 COPY ./src/pki/server-rsa-ca/ /pki.tmpl/server-rsa-ca/
 
 RUN apk add --no-cache \

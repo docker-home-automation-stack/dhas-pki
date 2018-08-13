@@ -12,13 +12,24 @@ if [ -s ./easyrsa ]; then
 else
   ln -sf /usr/share/easy-rsa/easyrsa .
 fi
+
+cd "${SVC_HOME}/root-ecc-ca"
+ln -sf ../easyrsa .
 ./easyrsa --batch init-pki
-./easyrsa --batch --req-cn="${PKI_ROOTCA_CN}" build-ca nopass
+./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC)" build-ca nopass
 ./easyrsa --batch gen-crl
 
-for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
-  TYPE=$(echo "${SUBCA}" | cut -d "-" -f 1 | tr '[:lower:]' '[:upper:]')
-  ALGO=$(echo "${SUBCA}" | cut -d "-" -f 2 | tr '[:lower:]' '[:upper:]')
+cd "${SVC_HOME}/root-rsa-ca"
+ln -sf ../easyrsa .
+./easyrsa --batch init-pki
+./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA)" build-ca nopass
+./easyrsa --batch gen-crl
+
+for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
+  type=$(echo "${SUBCA}" | cut -d "-" -f 1)
+  TYPE=$(echo "${type}" | tr '[:lower:]' '[:upper:]')
+  algo=$(echo "${SUBCA}" | cut -d "-" -f 2)
+  ALGO=$(echo "${algo}" | tr '[:lower:]' '[:upper:]')
   CN=$(eval "echo \${PKI_${TYPE}CA_CN:-$SUBCA}")
 
   # create CA and signing request
@@ -30,11 +41,11 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
   [ ! -s data/dh.pem ] && ./easyrsa --batch gen-dh
 
   # sign Sub CA with Root CA
-  cd "${SVC_HOME}"
-  ./easyrsa --batch import-req "${SUBCA}/data/reqs/ca.req" "${SUBCA}"
+  cd "${SVC_HOME}/root-${algo}-ca"
+  ./easyrsa --batch import-req "${SVC_HOME}/${SUBCA}/data/reqs/ca.req" "${SUBCA}"
   ./easyrsa --batch sign-req ca "${SUBCA}"
-  cp "data/issued/${SUBCA}.crt" "${SUBCA}/data/ca.crt"
-  cat "${SUBCA}/data/ca.crt" "data/ca.crt" > "${SUBCA}/data/ca-chain.crt"
+  cp "data/issued/${SUBCA}.crt" "${SVC_HOME}/${SUBCA}/data/ca.crt"
+  cat "${SVC_HOME}/${SUBCA}/data/ca.crt" "data/ca.crt" > "${SVC_HOME}/${SUBCA}/data/ca-chain.crt"
 
   # Generate CRL for Sub CA
   cd "${SVC_HOME}/${SUBCA}"
