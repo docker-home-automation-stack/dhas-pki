@@ -16,16 +16,17 @@ for TYPE in client code email server; do
     CN=$(echo "${NAMES}" | cut -d "," -f1)
     CN=${CN//\*\./}
     SAN="DNS:${NAMES//,/,DNS:}"
-    
+
     [ "${CN}" = "ca" ] && continue # ensure one cannot do any processing on CA certificate files
 
     for ALGO in ec rsa; do
       mkdir -p "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
-      
+      chmod 751 "${REQS}" "${REQS}/${TYPE}" "${REQS}/${TYPE}/${ALGO}"
+
       [[ -s "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.req.signed" || -s "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.csr.signed" ]] && continue
 
       cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
-      
+
       echo "Generating ${ALGO} request '${CN}' with SAN '${SAN}'"
 
       RET_TXT=$(./easyrsa --batch --subject-alt-name="${SAN}" --req-cn="${CN}" gen-req "${CN}" nopass)
@@ -34,6 +35,7 @@ for TYPE in client code email server; do
       if [ "${RET_CODE}" = '0' ]; then
         mv data/reqs/${CN}.req "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
         mv data/private/${CN}.key "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
+        chmod 640 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.key"
       fi
 
     done
