@@ -70,8 +70,6 @@ for TYPE in client code email server; do
   done
 done
 
-/usr/local/bin/set-permissions.sh
-
 cd "${SVC_HOME}"
 
 exit 0
