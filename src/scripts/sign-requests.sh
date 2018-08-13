@@ -7,7 +7,6 @@ for TYPE in client code email server; do
 
     # search per requestor directory
     for REQUESTOR in $(cd "${REQS}/${TYPE}/${ALGO}"; ls); do
-      chmod 777 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
 
       # search requests
       for REQ in $(find "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}" -type f -regex "^.*\.csr$" -o -regex "^.*\.req$"); do
@@ -53,7 +52,6 @@ for TYPE in client code email server; do
         # finishing
         echo "$RET_TXT" > "${REQ}.signed.txt"
         mv "${REQ}" "${REQ}.signed"
-        chmod 644 "${REQ}.signed" "${REQ}.signed.txt" "${REQ%.*}".crt "${REQ%.*}".full.crt "${REQ%.*}".ca.crt "${REQ%.*}".ca-chain.crt
       done
 
       # search for signed requests
@@ -71,6 +69,8 @@ for TYPE in client code email server; do
     done
   done
 done
+
+/usr/local/bin/set-permissions.sh
 
 cd "${SVC_HOME}"
 
