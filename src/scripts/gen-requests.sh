@@ -12,10 +12,9 @@ for TYPE in client code email server; do
     [ -z "${CRT}" ] && break
 
     REQUESTOR=$(echo "${CRT}" | cut -d ":" -f1)
-    NAMES=$(echo "${CRT}" | cut -d ":" -f2)
-    CN=$(echo "${NAMES}" | cut -d "," -f1)
+    SAN=$(echo "${CRT}" | cut -d ":" -f2-)
+    CN=$(echo "${SAN}" | cut -d ":" -f2 | cut -d "," -f1)
     CN=${CN//\*\./}
-    SAN="DNS:${NAMES//,/,DNS:}"
 
     [ "${CN}" = "ca" ] && continue # ensure one cannot do any processing on CA certificate files
 
