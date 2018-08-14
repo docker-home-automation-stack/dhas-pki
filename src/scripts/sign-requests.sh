@@ -1,6 +1,7 @@
 #!/bin/sh
 
 REQS="${SVC_HOME}/fifo"
+umask 0027
 
 for TYPE in client code email server; do
   for ALGO in ecc rsa; do
@@ -41,6 +42,7 @@ for TYPE in client code email server; do
         # copy certificate
         echo "[${TYPE}-${ALGO}-ca] Exporting '${BASENAME}.crt' to '${REQ%.*}.crt'"
         cp -f "data/issued/${BASENAME}.crt" "${REQ%.*}.crt"
+        chmod 644 "${REQ%.*}.crt"
 
         # copy CA chain
         cp -f "data/ca.crt" "${REQ%.*}".ca.crt

@@ -1,31 +1,37 @@
 #!/bin/sh
 set +e
 
-# enforce directory and file permissions for Root CA
 cd "${SVC_HOME}"
 mkdir -p fifo
-chown -R -h root:root $(ls -A | grep -v fifo)
 chown -R -h root:${SVC_GROUP} . .rnd
 chown -R -h ${SVC_USER}:${SVC_GROUP} fifo
-find $(ls -A | grep -v fifo) -type d -exec chmod 700 {} \;
-find $(ls -A | grep -v fifo) -type f -exec chmod 600 {} \;
-chmod 751 . fifo
-chmod 750 data
+chmod 751 fifo
 chmod 555 easyrsa
 chmod 660 .rnd
-chmod 444 data/ca.crt
-chmod 644 data/crl.pem
-chmod 600 data/private/*
 
-# enforce directory and file permissions for every Sub CA
+# enforce directory and file permissions for Root CA
+for TYPE in ecc rsa; do
+  cd "${SVC_HOME}/root-${TYPE}-ca"
+  chown -R -h root:root .
+  chown root:${SVC_GROUP} . data
+  find . -type d -exec chmod 700 {} \;
+  find . -type f -exec chmod 600 {} \;
+  chmod 750 . data
+  chmod 444 data/ca.crt
+  chmod 644 data/crl.pem
+done
+
 for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
+  
+  # fifo directory for Sub CA
   mkdir -p "${SVC_HOME}/fifo/${SUBCA/-*}" "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
   chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  chmod 751 "${SVC_HOME}/fifo/${SUBCA/-*}"
-  chmod 711 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  find "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -maxdepth 0 -type d -exec chmod 777 {} \;
-  find "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -maxdepth 0 -type f -name "*.key" -exec chmod 640 {} \;
+  chmod 755 "${SVC_HOME}/fifo/${SUBCA/-*}"
+  chmod 710 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
+  find "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -mindepth 1 -type d -exec chmod 770 {} \;
+  find "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -type f -name "*.key" -exec chmod 660 {} \;
 
+  # enforce directory and file permissions for Sub CA
   cd "${SVC_HOME}/${SUBCA}"
   chown -R -h ${SVC_USER}:${SVC_GROUP} .
   chmod 755 . data
