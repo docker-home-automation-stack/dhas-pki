@@ -18,7 +18,7 @@ chmod 644 data/crl.pem
 chmod 600 data/private/*
 
 # enforce directory and file permissions for every Sub CA
-for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$"); do
+for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   mkdir -p "${SVC_HOME}/fifo/${SUBCA/-*}" "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
   chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
   chmod 751 "${SVC_HOME}/fifo/${SUBCA/-*}"

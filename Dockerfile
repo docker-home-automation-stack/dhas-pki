@@ -56,6 +56,8 @@ COPY ./src/pki/client-ecc-ca/ /pki.tmpl/client-ecc-ca/
 COPY ./src/pki/client-rsa-ca/ /pki.tmpl/client-rsa-ca/
 COPY ./src/pki/code-ecc-ca/ /pki.tmpl/code-ecc-ca/
 COPY ./src/pki/code-rsa-ca/ /pki.tmpl/code-rsa-ca/
+COPY ./src/pki/email-ecc-ca/ /pki.tmpl/email-ecc-ca/
+COPY ./src/pki/email-rsa-ca/ /pki.tmpl/email-rsa-ca/
 COPY ./src/pki/server-ecc-ca/ /pki.tmpl/server-ecc-ca/
 COPY ./src/pki/server-rsa-ca/ /pki.tmpl/server-rsa-ca/
 
