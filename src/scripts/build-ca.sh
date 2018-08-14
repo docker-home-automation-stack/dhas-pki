@@ -1,6 +1,7 @@
 #!/bin/sh
 
 HOME="${SVC_HOME}"
+REQS="${SVC_HOME}/fifo"
 
 cd "${SVC_HOME}"
 
@@ -50,6 +51,12 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   # Generate CRL for Sub CA
   cd "${SVC_HOME}/${SUBCA}"
   ./easyrsa --batch gen-crl
+
+  # create fifo directory
+  mkdir -p "${REQS}/${type}/${algo}"
+  chown ${PKI_USER}:${PKI_GROUP} "${REQS}/${type}/${algo}"
+  chmod 755 "${REQS}" "${REQS}/${type}"
+  chmod 710 "${REQS}/${type}/${algo}"
 done
 
 cd "${SVC_HOME}"

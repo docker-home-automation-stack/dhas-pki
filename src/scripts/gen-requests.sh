@@ -21,8 +21,7 @@ for TYPE in client code email server; do
 
     for ALGO in ecc rsa; do
       mkdir -p "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
-      chmod 755 "${REQS}" "${REQS}/${TYPE}" "${REQS}/${TYPE}/${ALGO}"
-      chmod 710 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
+      chmod 770 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}"
 
       [[ -s "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.req.signed" || -s "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.csr.signed" ]] && continue
 
