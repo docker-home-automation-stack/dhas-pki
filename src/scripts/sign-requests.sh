@@ -45,11 +45,11 @@ for TYPE in client code email server; do
         chmod 644 "${REQ%.*}.crt"
 
         # copy CA chain
-        cp -f "data/ca.crt" "${REQ%.*}".ca.crt
-        cp -f "data/ca-chain.crt" "${REQ%.*}".ca-chain.crt
+        cp -f "data/ca.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca.crt"
+        cp -f "data/ca-chain.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca-chain.crt"
         
-        # Hardlink DH file
-        ln data/dh.pem "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
+        # copy DH file
+        cp -f "data/dh.pem" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
 
         # generate password file
         if [ ! -s "${REQ%.*}".passwd ]; then
