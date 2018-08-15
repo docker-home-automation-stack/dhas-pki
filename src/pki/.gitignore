@@ -1,3 +1,5 @@
 .rnd
-fifo/
+.*_history
+*.signed.txt
+*.error.txt
 

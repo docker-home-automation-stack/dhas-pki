@@ -6,6 +6,7 @@ REQS="${SVC_HOME}/fifo"
 cd "${SVC_HOME}"
 
 cp -r /pki.tmpl/* ./
+cp -r /pki.tmpl/.gitignore ./
 
 if [ -s ./easyrsa ]; then
   rm easyrsa
