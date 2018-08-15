@@ -40,6 +40,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
   [ -s dh.pem ] && mv dh.pem data/
   [ ! -s data/dh.pem ] && ./easyrsa --batch gen-dh
+  chmod 444 data/dh.pem
 
   # sign Sub CA with Root CA
   cd "${SVC_HOME}/root-${algo}-ca"

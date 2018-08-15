@@ -47,6 +47,9 @@ for TYPE in client code email server; do
         # copy CA chain
         cp -f "data/ca.crt" "${REQ%.*}".ca.crt
         cp -f "data/ca-chain.crt" "${REQ%.*}".ca-chain.crt
+        
+        # Hardlink DH file
+        ln data/dh.pem "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
 
         # generate password file
         if [ ! -s "${REQ%.*}".passwd ]; then
