@@ -3,15 +3,19 @@
 REQS="${SVC_HOME}/fifo"
 umask 0027
 
-for TYPE in client code email server; do
+for TYPE in root client code email server; do
   for ALGO in ecc rsa; do
 
     # re-generate CRL every 3 days with 6 days validity
     # to allow overlap period
     cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
-    nextUpdate=$(date --date="$(openssl crl -in crl.pem -noout -nextupdate | cut -d = -f 2)" +"%s")
-    dateNow=$(date +"%s")
-    delta=(( $nextUpdate - $dateNow ))
+    if [ -s crl.pem ]; then
+      nextUpdate=$(date --date="$(openssl crl -in crl.pem -noout -nextupdate | cut -d = -f 2)" +"%s")
+      dateNow=$(date +"%s")
+      delta=(( $nextUpdate - $dateNow ))
+    else
+      delta=0
+    fi
     if [ $delta -le 259200 ]; then
       echo "Re-generating CRL for ${TYPE}-${ALGO}-ca"
       ./easyrsa --batch gen-crl
