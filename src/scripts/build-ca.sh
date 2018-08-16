@@ -48,11 +48,13 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   ./easyrsa --batch import-req "${SVC_HOME}/${SUBCA}/data/reqs/ca.req" "${SUBCA}"
   ./easyrsa --batch sign-req ca "${SUBCA}"
   cp "data/issued/${SUBCA}.crt" "${SVC_HOME}/${SUBCA}/data/ca.crt"
+  openssl x509 -in "${SVC_HOME}/${SUBCA}/data/ca.crt" -out "${SVC_HOME}/${SUBCA}/data/ca.der" -outform der
   cat "${SVC_HOME}/${SUBCA}/data/ca.crt" "data/ca.crt" > "${SVC_HOME}/${SUBCA}/data/ca-chain.crt"
 
   # Generate CRL for Sub CA
   cd "${SVC_HOME}/${SUBCA}"
   ./easyrsa --batch gen-crl
+  openssl crl -in crl.pem -out crl.der -outform der
 
   # create fifo directory
   mkdir -p "${REQS}/${type}/${algo}"

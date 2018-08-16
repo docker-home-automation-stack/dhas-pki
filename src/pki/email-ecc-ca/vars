@@ -127,7 +127,7 @@ set_var EASYRSA_CERT_EXPIRE	3665
 # parsed after this timeframe passes. It is only used for an expected next
 # publication date.
 
-#set_var EASYRSA_CRL_DAYS	180
+set_var EASYRSA_CRL_DAYS	6
 
 # Support deprecated "Netscape" extensions? (choices "yes" or "no".) The default
 # is "no" to discourage use of deprecated extensions. If you require this
