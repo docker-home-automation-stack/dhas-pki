@@ -19,11 +19,15 @@ cd "${SVC_HOME}/root-ecc-ca"
 ln -sf ../easyrsa .
 ./easyrsa --batch init-pki
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC)" build-ca nopass
+./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC), OCSP Responder" gen-req ca-ocsp nopass
+./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 
 cd "${SVC_HOME}/root-rsa-ca"
 ln -sf ../easyrsa .
 ./easyrsa --batch init-pki
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA)" build-ca nopass
+./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA), OCSP Responder" gen-req ca-ocsp nopass
+./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 
 for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   type=$(echo "${SUBCA}" | cut -d "-" -f 1)
@@ -48,6 +52,11 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   cp "data/issued/${SUBCA}.crt" "${SVC_HOME}/${SUBCA}/data/ca.crt"
   openssl x509 -in "${SVC_HOME}/${SUBCA}/data/ca.crt" -out "${SVC_HOME}/${SUBCA}/data/ca.der" -outform der
   cat "${SVC_HOME}/${SUBCA}/data/ca.crt" "data/ca.crt" > "${SVC_HOME}/${SUBCA}/data/ca-chain.crt"
+
+  # Create OCSP responder certificate
+  cd "${SVC_HOME}/${SUBCA}"
+  ./easyrsa --batch --req-cn="${CN} (${ALGO}), OCSP Responder" gen-req ca-ocsp nopass
+  ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 
   # create fifo directory
   mkdir -p "${REQS}/${type}/${algo}"
