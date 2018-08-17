@@ -1,6 +1,5 @@
 #!/bin/sh
 
-REQS="${SVC_HOME}/fifo"
 umask 0027
 
 TYPE=$1

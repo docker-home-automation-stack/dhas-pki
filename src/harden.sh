@@ -35,7 +35,6 @@ find /sbin /usr/sbin \( ! -type d \
   -a ! -name addgroup \
   -a ! -name adduser \
   -a ! -name jq \
-  -a ! -name sudo \
   -a ! -name su-exec \
   \) -exec rm -fv {} \;
 
@@ -82,7 +81,9 @@ find $sysdirs -xdev -type d \
 
 # Remove all suid files.
 echo "Remove all suid files ..."
-find $sysdirs -xdev -type f -a -perm +4000 -exec rm -frv {} \;
+find $sysdirs -xdev -type f -a -perm +4000 \( ! -type d \
+  -a ! -name sudo \
+  \) -exec rm -frv {} \;
 
 # Remove other programs that could be dangerous.
 echo "Remove other potentially dangerous programs ..."
