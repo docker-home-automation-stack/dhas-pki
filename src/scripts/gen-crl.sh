@@ -11,7 +11,7 @@ ALGO=$2
 # to allow overlap period
 cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
 if [ -s data/crl.pem ]; then
-  nextUpdate=$(date --date="$(openssl crl -in data/crl.pem -noout -nextupdate | cut -d = -f 2)" +"%s")
+  nextUpdate=$(date --date="$(openssl crl -in data/crl.pem -noout -nextupdate | cut -d = -f 2)" '+%s')
   dateNow=$(date +"%s")
   delta=$(( $nextUpdate - $dateNow ))
 else

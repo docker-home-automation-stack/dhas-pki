@@ -68,6 +68,7 @@ COPY ./src/pki/server-ecc-ca/ /pki.tmpl/server-ecc-ca/
 COPY ./src/pki/server-rsa-ca/ /pki.tmpl/server-rsa-ca/
 
 RUN apk add --no-cache \
+      coreutils \
       dumb-init \
       easy-rsa \
       gettext \
