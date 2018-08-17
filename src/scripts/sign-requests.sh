@@ -6,7 +6,8 @@ umask 0027
 for TYPE in root client code email server; do
   for ALGO in ecc rsa; do
     
-    [ "${TYPE}" = 'root' ] && SUDO=sudo
+    SUDO="."
+    [ "${TYPE}" = 'root' ] && SUDO="sudo -E"
     ${SUDO} /usr/local/bin/gen-crl.sh ${TYPE} ${ALGO}    
     [ "${TYPE}" = 'root' ] && continue 
 
