@@ -12,7 +12,7 @@ for TYPE in root client code email server; do
     if [ -s crl.pem ]; then
       nextUpdate=$(date --date="$(openssl crl -in crl.pem -noout -nextupdate | cut -d = -f 2)" +"%s")
       dateNow=$(date +"%s")
-      delta=(( $nextUpdate - $dateNow ))
+      delta=$(( $nextUpdate - $dateNow ))
     else
       delta=0
     fi

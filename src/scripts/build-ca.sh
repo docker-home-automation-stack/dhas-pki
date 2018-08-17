@@ -60,7 +60,7 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
 
   # create fifo directory
   mkdir -p "${REQS}/${type}/${algo}"
-  chown ${PKI_USER}:${PKI_GROUP} "${REQS}/${type}/${algo}"
+  chown ${SVC_USER}:${SVC_GROUP} "${REQS}/${type}/${algo}"
   chmod 755 "${REQS}" "${REQS}/${type}"
   chmod 710 "${REQS}/${type}/${algo}"
 done
