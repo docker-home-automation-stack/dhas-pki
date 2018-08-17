@@ -53,11 +53,6 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   openssl x509 -in "${SVC_HOME}/${SUBCA}/data/ca.crt" -out "${SVC_HOME}/${SUBCA}/data/ca.der" -outform der
   cat "${SVC_HOME}/${SUBCA}/data/ca.crt" "data/ca.crt" > "${SVC_HOME}/${SUBCA}/data/ca-chain.crt"
 
-  # Create OCSP responder certificate
-  cd "${SVC_HOME}/${SUBCA}"
-  ./easyrsa --batch --req-cn="${CN} (${ALGO}), OCSP Responder" gen-req ca-ocsp nopass
-  ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
-
   # create fifo directory
   mkdir -p "${REQS}/${type}/${algo}"
   chown ${PKI_USER}:${PKI_GROUP} "${REQS}/${type}/${algo}"
