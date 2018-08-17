@@ -5,24 +5,10 @@ umask 0027
 
 for TYPE in root client code email server; do
   for ALGO in ecc rsa; do
-
-    # re-generate CRL every 3 days with 6 days validity
-    # to allow overlap period
-    cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
-    if [ -s data/crl.pem ]; then
-      nextUpdate=$(date --date="$(openssl crl -in data/crl.pem -noout -nextupdate | cut -d = -f 2)" +"%s")
-      dateNow=$(date +"%s")
-      delta=$(( $nextUpdate - $dateNow ))
-    else
-      delta=0
-    fi
-    if [ $delta -le 259200 ]; then
-      echo "Re-generating CRL for ${TYPE}-${ALGO}-ca"
-      ./easyrsa --batch gen-crl
-      chmod 644 data/crl.pem
-      openssl crl -in data/crl.pem -out data/crl.der -outform der
-      chmod 644 data/crl.der
-    fi
+    
+    [ "${TYPE}" = 'root' ] && SUDO=sudo
+    ${SUDO} /usr/local/bin/gen-crl.sh ${TYPE} ${ALGO}    
+    [ "${TYPE}" = 'root' ] && continue 
 
     # search per requestor directory
     for REQUESTOR in $(cd "${REQS}/${TYPE}/${ALGO}"; ls); do

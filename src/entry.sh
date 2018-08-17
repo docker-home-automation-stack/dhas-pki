@@ -16,6 +16,8 @@ if [ "${CMD}" = 'init' ] || [ "${CMD}" = 'start' ]; then
   addgroup -g ${SVC_GROUP_ID} ${SVC_GROUP}
   adduser -h "${SVC_HOME}" -s /bin/nologin -u ${SVC_USER_ID} -D -H -G ${SVC_GROUP} ${SVC_USER}
 
+  echo "${SVC_USER} ALL=(root)NOPASSWD:/usr/local/bin/gen-crl.sh ${TYPE}" > /etc/sudoers.d/gen-crl
+
   [ "${CMD}" = 'init' ] && exit 0
 fi
 

@@ -74,6 +74,7 @@ RUN apk add --no-cache \
       openssl \
       pwgen \
       su-exec \
+      sudo \
       jq \
     \
     && /harden.sh \

@@ -35,6 +35,7 @@ find /sbin /usr/sbin \( ! -type d \
   -a ! -name addgroup \
   -a ! -name adduser \
   -a ! -name jq \
+  -a ! -name sudo \
   -a ! -name su-exec \
   \) -exec rm -fv {} \;
 
