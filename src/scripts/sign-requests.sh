@@ -75,17 +75,17 @@ for TYPE in root client code email server; do
         mv "${REQ}" "${REQ}.signed"
       done
 
-      # search for signed requests
-      for REQ_SIGNED in $(find "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}" -type f -regex "^.*\.csr.signed$" -o -regex "^.*\.req.signed$"); do
-        FILENAME_SIGNED="${REQ_SIGNED##*/}"
-        FILENAME="${FILENAME_SIGNED%.*}"
-        REQ="${REQ_SIGNED%/*}${FILENAME}"
-        BASENAME="${REQUESTOR}-${FILENAME%.*}"
-
-        [ -s "${REQ%.*}".crt ] || continue # continue only when cert file still exists
-
-        #TODO: renew (almost) expired certificates
-      done
+      # # search for signed requests
+      # for REQ_SIGNED in $(find "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}" -type f -regex "^.*\.csr.signed$" -o -regex "^.*\.req.signed$"); do
+      #   FILENAME_SIGNED="${REQ_SIGNED##*/}"
+      #   FILENAME="${FILENAME_SIGNED%.*}"
+      #   REQ="${REQ_SIGNED%/*}${FILENAME}"
+      #   BASENAME="${REQUESTOR}-${FILENAME%.*}"
+      #
+      #   [ -s "${REQ%.*}".crt ] || continue # continue only when cert file still exists
+      #
+      #   #TODO: renew (almost) expired certificates
+      # done
 
     done
 

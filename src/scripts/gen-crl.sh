@@ -24,7 +24,3 @@ if [ $delta -le 259200 ]; then
   openssl crl -in data/crl.pem -out data/crl.der -outform der
   chmod 644 data/crl.der
 fi
-
-cd "${SVC_HOME}"
-
-exit 0
