@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Home PKI</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">Home PKI</a>
+        <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="install.html">Install</a>
+            </li>
+          </ul>
+        </div> -->
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+
+          <h2 class="mt-3">Home</h2>
+          <h1 class="mt-2">Public Key Infrastructure</h1>
+          <p class="lead mt-5">Download public certificates and revocation lists from Certificate Authorities:</p>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Root CA (ECC):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="root-ecc/root-ecc-ca.pem">PEM</a>
+              <a href="root-ecc/root-ecc-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="root-ecc/root-ecc-ca.der">DER</a>
+              <a href="root-ecc/root-ecc-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="root-ecc/root-ecc-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="root-ecc/root-ecc-crl.der">DER</a>
+              <a href="root-ecc/root-ecc-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Root CA (RSA):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="root-rsa/root-rsa-ca.pem">PEM</a>
+              <a href="root-rsa/root-rsa-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="root-rsa/root-rsa-ca.der">DER</a>
+              <a href="root-rsa/root-rsa-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="root-rsa/root-rsa-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="root-rsa/root-rsa-crl.der">DER</a>
+              <a href="root-rsa/root-rsa-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+      <div class="col-lg-12 mt-3 mb-4"><hr /></div>
+
+      <div class="row">
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Client Sub CA (ECC):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="client-ecc/client-ecc-ca.pem">PEM</a>
+              <a href="client-ecc/client-ecc-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="client-ecc/client-ecc-ca.der">DER</a>
+              <a href="client-ecc/client-ecc-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="client-ecc/client-ecc-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="client-ecc/client-ecc-crl.der">DER</a>
+              <a href="client-ecc/client-ecc-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Client Sub CA (RSA):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="client-rsa/client-rsa-ca.pem">PEM</a>
+              <a href="client-rsa/client-rsa-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="client-rsa/client-rsa-ca.der">DER</a>
+              <a href="client-rsa/client-rsa-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="client-rsa/client-rsa-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="client-rsa/client-rsa-crl.der">DER</a>
+              <a href="client-rsa/client-rsa-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Code Sub CA (ECC):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="code-ecc/code-ecc-ca.pem">PEM</a>
+              <a href="code-ecc/code-ecc-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="code-ecc/code-ecc-ca.der">DER</a>
+              <a href="code-ecc/code-ecc-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="code-ecc/code-ecc-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="code-ecc/code-ecc-crl.der">DER</a>
+              <a href="code-ecc/code-ecc-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Code Sub CA (RSA):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="code-rsa/code-rsa-ca.pem">PEM</a>
+              <a href="code-rsa/code-rsa-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="code-rsa/code-rsa-ca.der">DER</a>
+              <a href="code-rsa/code-rsa-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="code-rsa/code-rsa-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="code-rsa/code-rsa-crl.der">DER</a>
+              <a href="code-rsa/code-rsa-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Email Sub CA (ECC):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="email-ecc/email-ecc-ca.pem">PEM</a>
+              <a href="email-ecc/email-ecc-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="email-ecc/email-ecc-ca.der">DER</a>
+              <a href="email-ecc/email-ecc-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="email-ecc/email-ecc-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="email-ecc/email-ecc-crl.der">DER</a>
+              <a href="email-ecc/email-ecc-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Email Sub CA (RSA):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="email-rsa/email-rsa-ca.pem">PEM</a>
+              <a href="email-rsa/email-rsa-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="email-rsa/email-rsa-ca.der">DER</a>
+              <a href="email-rsa/email-rsa-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="email-rsa/email-rsa-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="email-rsa/email-rsa-crl.der">DER</a>
+              <a href="email-rsa/email-rsa-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Server Sub CA (ECC):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="server-ecc/server-ecc-ca.pem">PEM</a>
+              <a href="server-ecc/server-ecc-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="server-ecc/server-ecc-ca.der">DER</a>
+              <a href="server-ecc/server-ecc-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="server-ecc/server-ecc-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="server-ecc/server-ecc-crl.der">DER</a>
+              <a href="server-ecc/server-ecc-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+        <div class="col-lg-6 text-center">
+
+          <h3 class="mt-2">Server Sub CA (RSA):</h3>
+          <ul class="list-unstyled">
+            <h5 class="mt-3">Public certificate</h5>
+            <li>Base64 ASCII:
+              <a href="server-rsa/server-rsa-ca.pem">PEM</a>
+              <a href="server-rsa/server-rsa-ca.crt">CRT</a>
+            </li>
+            <li>DER binary:
+              <a href="server-rsa/server-rsa-ca.der">DER</a>
+              <a href="server-rsa/server-rsa-ca.cer">CER</a>
+            </li>
+            <h5 class="mt-3">Revocation list</h5>
+            <li>Base64 ASCII:
+              <a href="server-rsa/server-rsa-crl.pem">PEM</a>
+            </li>
+            <li>DER binary:
+              <a href="server-rsa/server-rsa-crl.der">DER</a>
+              <a href="server-rsa/server-rsa-ca.crl">CRL</a>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  </body>
+
+</html>

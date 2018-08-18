@@ -56,6 +56,7 @@ ENV PATH .:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 COPY ./src/harden.sh ./src/entry.sh /
 COPY ./src/scripts/*.sh /usr/local/bin/
 COPY ./src/easyrsa ./src/pki/.gitignore /pki.tmpl/
+COPY ./src/pki/web/ /pki.tmpl/web/
 COPY ./src/pki/root-ecc-ca/ /pki.tmpl/root-ecc-ca/
 COPY ./src/pki/root-rsa-ca/ /pki.tmpl/root-rsa-ca/
 COPY ./src/pki/client-ecc-ca/ /pki.tmpl/client-ecc-ca/
