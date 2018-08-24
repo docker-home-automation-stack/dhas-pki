@@ -17,8 +17,8 @@ for TYPE in ecc rsa; do
   find . -type d -exec chmod 700 {} \;
   find . -type f -exec chmod 600 {} \;
   chmod 750 . data
-  chmod 444 data/ca.crt
-  chmod 644 data/crl.pem
+  chmod 444 data/ca.crt data/ca.der
+  chmod 644 data/crl.pem data/crl.der
 done
 
 for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
@@ -35,12 +35,12 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   cd "${SVC_HOME}/${SUBCA}"
   chown -R -h ${SVC_USER}:${SVC_GROUP} .
   chmod 755 . data
-  chmod 444 data/ca*.crt data/dh.pem
+  chmod 444 data/ca*.crt data/ca*.der data/dh.pem
   if [ -e data/ecparams ]; then
     chmod 755 data/ecparams
     chmod 444 data/ecparams/*.pem
   fi
-  chmod 644 data/crl.pem
+  chmod 644 data/crl.pem data/crl.der
   chmod 600 data/private/*
 done
 
