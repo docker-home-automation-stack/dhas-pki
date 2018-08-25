@@ -5,11 +5,10 @@ umask 0027
 
 for TYPE in root client code email server; do
   for ALGO in ecc rsa; do
-    
+
     SUDO="."
     [ "${TYPE}" = 'root' ] && SUDO="sudo -E"
     ${SUDO} /usr/local/bin/gen-crl.sh ${TYPE} ${ALGO}    
-    [ "${TYPE}" = 'root' ] && continue 
 
     # search per requestor directory
     for REQUESTOR in $(cd "${REQS}/${TYPE}/${ALGO}"; ls); do
@@ -19,6 +18,11 @@ for TYPE in root client code email server; do
         [ -s "${REQ%.*}".crt ] && continue # ignore already signed certificate
         FILENAME="${REQ##*/}"
         BASENAME="${REQUESTOR}--${FILENAME%.*}"
+
+        if [ "${TYPE}" = 'root' ]; then
+          echo "Pending signing request for Root CA requires manual attention: ${REQ}"
+          continue
+        fi
 
         cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
 

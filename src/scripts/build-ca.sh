@@ -23,6 +23,9 @@ openssl x509 -in "data/ca.crt" -out "data/ca.der" -outform der
 chmod 444 "data/ca.der"
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC), OCSP Responder" gen-req ca-ocsp nopass
 ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
+mkdir -p "${REQS}/root/ecc"
+chmod 755 "${REQS}" "${REQS}/root"
+chmod 710 "${REQS}/root/ecc"
 
 cd "${SVC_HOME}/root-rsa-ca"
 ln -sf ../easyrsa .
@@ -32,6 +35,9 @@ openssl x509 -in "data/ca.crt" -out "data/ca.der" -outform der
 chmod 444 "data/ca.der"
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA), OCSP Responder" gen-req ca-ocsp nopass
 ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
+mkdir -p "${REQS}/root/rsa"
+chmod 755 "${REQS}" "${REQS}/root"
+chmod 710 "${REQS}/root/rsa"
 
 for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   type=$(echo "${SUBCA}" | cut -d "-" -f 1)
