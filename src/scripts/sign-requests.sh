@@ -42,10 +42,13 @@ for TYPE in root client code email server; do
           continue
         fi
 
+        rm -f "${REQ}.error" "${REQ}.error.txt" "${REQ}.signed" "${REQ}.signed.txt"
+
         cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
 
         # import into PKI
         echo "[${TYPE}-${ALGO}-ca] Importing '${REQ}' as '${BASENAME}'"
+        rm -f "data/reqs/${BASENAME}.req"
         RET_TXT=$(./easyrsa --batch import-req "${REQ}" "${BASENAME}" 2>&1)
         RET_CODE=$?
 
@@ -76,7 +79,7 @@ for TYPE in root client code email server; do
         # copy CA chain
         [ -s "data/ca.crt" ] && cp --force --preserve=mode,timestamps "data/ca.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca.crt"
         [ -s "data/ca-chain.crt" ] && cp --force --preserve=mode,timestamps "data/ca-chain.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca-chain.crt"
-        
+
         # copy DH file
         [ -s "data/dh.pem" ] && cp --force --preserve=mode,timestamps "data/dh.pem" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
 
