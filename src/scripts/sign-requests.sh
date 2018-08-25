@@ -96,7 +96,7 @@ for TYPE in root client code email server; do
         fi
 
         # certificate variants
-        cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
+        [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
         chmod 644 "${REQ%.*}".full.crt
         if [ -s "${REQ%.*}".key ]; then
           openssl pkcs12 -export -out "${REQ%.*}".nopasswd.pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
