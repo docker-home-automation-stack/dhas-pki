@@ -2,4 +2,6 @@
 .*_history
 *.signed.txt
 *.error.txt
+crl.pem
+crl.der
 
