@@ -45,7 +45,7 @@ for TYPE in root client code email server; do
         cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
 
         # import into PKI
-        echo "Importing '${REQ}' as '${BASENAME}' to PKI ${TYPE}-${ALGO}-ca"
+        echo "[${TYPE}-${ALGO}-ca] Importing '${REQ}' as '${BASENAME}'"
         RET_TXT=$(./easyrsa --batch import-req "${REQ}" "${BASENAME}" 2>&1)
         RET_CODE=$?
 
@@ -74,14 +74,14 @@ for TYPE in root client code email server; do
         chmod 644 "${REQ%.*}.crt"
 
         # copy CA chain
-        cp -f "data/ca.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca.crt"
-        cp -f "data/ca-chain.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca-chain.crt"
+        [ -s "data/ca.crt" ] && cp --force --preserve=mode,timestamps "data/ca.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca.crt"
+        [ -s "data/ca-chain.crt" ] && cp --force --preserve=mode,timestamps "data/ca-chain.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca-chain.crt"
         
         # copy DH file
-        cp -f "data/dh.pem" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
+        [ -s "data/dh.pem" ] && cp --force --preserve=mode,timestamps "data/dh.pem" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
 
         # generate password file
-        if [ ! -s "${REQ%.*}".passwd ]; then
+        if [ -s "${REQ%.*}".key ] && [ ! -s "${REQ%.*}".passwd ]; then
           if [ "${TYPE}" = 'client' ] || [ "${TYPE}" = 'email' ]; then
             pwgen -1Bcn 12 1 > "${REQ%.*}".passwd
           else
@@ -91,8 +91,14 @@ for TYPE in root client code email server; do
 
         # certificate variants
         cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
-        openssl pkcs12 -export -out "${REQ%.*}".nopasswd.pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
-        openssl pkcs12 -export -out "${REQ%.*}".pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd
+        chmod 644 "${REQ%.*}".full.crt
+        if [ -s "${REQ%.*}".key ]; then
+          openssl pkcs12 -export -out "${REQ%.*}".nopasswd.pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
+          if [ -s "${REQ%.*}".passwd ]; then
+            openssl pkcs12 -export -out "${REQ%.*}".pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".pfx
+            chmod 644 
+          fi
+        fi
 
         # finishing
         echo "$RET_TXT" > "${REQ}.signed.txt"
