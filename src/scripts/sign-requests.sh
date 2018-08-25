@@ -1,9 +1,27 @@
 #!/bin/sh
 
 REQS="${SVC_HOME}/fifo"
+USERUID="$(id -u)"
 umask 0027
 
+if [ "${USERUID}" != 0 ] && [ "${USERUID}" != "${SVC_USER_ID}" ]; then
+  echo "ERROR: Running this script with UID ${USERID} is prohibited."
+  exit 1
+fi
+
 for TYPE in root client code email server; do
+
+  # make sure root will only sign requests for Root CA
+  if [ "${USERUID}" = 0 ] && [ "${TYPE}" != 'root' ]; then
+    continue
+  fi
+
+  # make sure sign requests for Sub CA will only be handled
+  # by non-root user
+  if [ "${USERUID}" != 0 ] && [ "${TYPE}" = 'root' ]; then
+    continue
+  fi
+
   for ALGO in ecc rsa; do
 
     SUDO="."
@@ -19,7 +37,7 @@ for TYPE in root client code email server; do
         FILENAME="${REQ##*/}"
         BASENAME="${REQUESTOR}--${FILENAME%.*}"
 
-        if [ "${TYPE}" = 'root' ]; then
+        if [ "${TYPE}" = 'root' ] && [ "${USERUID}" != 0 ]; then
           echo "Pending signing request for Root CA requires manual attention: ${REQ}"
           continue
         fi
