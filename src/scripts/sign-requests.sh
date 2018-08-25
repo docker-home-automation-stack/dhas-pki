@@ -46,6 +46,9 @@ for TYPE in root client code email server; do
 
         cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
 
+        touch "${REQ}.processing"
+        chmod 644 "${REQ}.processing"
+
         # import into PKI
         echo "[${TYPE}-${ALGO}-ca] Importing '${REQ}' as '${BASENAME}'"
         rm -f "data/reqs/${BASENAME}.req"
@@ -65,7 +68,7 @@ for TYPE in root client code email server; do
 
         # if signing failed, rename request
         if [ ${RET_CODE} != 0 ]; then
-          rm -f "data/reqs/${BASENAME}.req"
+          rm -f "data/reqs/${BASENAME}.req" "${REQ}.processing"
           echo "${RET_TXT}" > "${REQ}.error.txt"
           mv "${REQ}" "${REQ}.error"
           continue
@@ -104,6 +107,7 @@ for TYPE in root client code email server; do
         fi
 
         # finishing
+        rm -f "${REQ}.processing"
         echo "$RET_TXT" > "${REQ}.signed.txt"
         mv "${REQ}" "${REQ}.signed"
       done
