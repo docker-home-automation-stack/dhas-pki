@@ -54,7 +54,9 @@ for TYPE in root client code email server; do
           SAN=$(./easyrsa show-req "${BASENAME}" | grep -A 1 "Subject Alternative Name:" | tail -n +2 | sed -e "s/ //g")
           [ ! "${SAN}" = "" ] && SAN="--subject-alt-name=\"${SAN}\""
           echo "[${TYPE}-${ALGO}-ca] Signing '${BASENAME}'"
-          RET_TXT=$(./easyrsa --batch ${SAN} sign-req ${TYPE} "${BASENAME}" 2>&1)
+          CTYPE="${TYPE}"
+          [ "${TYPE}" = 'root' ] && CTYPE="ca"
+          RET_TXT=$(./easyrsa --batch ${SAN} sign-req ${CTYPE} "${BASENAME}" 2>&1)
           RET_CODE=$?
         fi
 
