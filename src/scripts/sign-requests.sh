@@ -117,6 +117,13 @@ for TYPE in root client code email server; do
         [ -s "${REQ%.*}".key ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ] && mv -vf "${REQ%.*}".key "${REQ%.*}".nopasswd.key
         [ ! -s "${REQ%.*}".key ] && [ -s "${REQ%.*}".nopasswd.key ] && openssl ${algo_openssl} -out "${REQ%.*}".key -aes256 -in "${REQ%.*}".nopasswd.key -passout file:"${REQ%.*}".passwd
 
+        # Unlock cert private key
+        if [ ! -s "${REQ%.*}".nopasswd.key ] && [ -s "${REQ%.*}".passwd ]; then
+          KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
+          openssl ${algo_openssl} -out "${KEY}" -aes256 -in "${REQ%.*}".key -passin file:"${REQ%.*}".passwd -passout pass:
+          ln -sfv "${KEY}" "${REQ%.*}".nopasswd.key # use unencrypted key from memory
+        fi
+
         # certificate variants
         [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
         if [ -s "${REQ%.*}".nopasswd.key ]; then
