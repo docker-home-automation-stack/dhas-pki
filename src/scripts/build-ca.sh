@@ -29,7 +29,7 @@ REQS="${PKI_HOME}/fifo"
 umask 0077
 
 echo -e "[Build PKI] General initialization ..."
-mkdir -vp "${PKI_HOME}"
+mkdir -vp "${PKI_HOME}" "${PKI_PASSWD}"
 cd "${PKI_HOME}"
 if [ -d "${PKI_TMPL}" ]; then
   cp -rfv "${PKI_TMPL}"/* ./
@@ -45,13 +45,14 @@ elif [ ! -e ./easyrsa ]; then
   ln -sfv /usr/share/easy-rsa/easyrsa .
 fi
 
-LIST="$(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep ^root-)"
-if [ "${LIST}" = '' ]; then
+LIST_ROOT="$(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep ^root-)"
+if [ "${LIST_ROOT}" = '' ]; then
   echo "ERROR: ${PKI_HOME} does not contain any initial Root CA data structure"
   exit 1
 fi
 
-LIST="${LIST} $(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep -v ^root-)"
+LIST="${LIST_ROOT} $(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep -v ^root-)"
+TMPDIR="$(mktemp -d /dev/shm/XXXXXXXXXXXXXXXXXXX)"
 
 for CA in ${LIST}; do
   type=$(echo "${CA}" | cut -d "-" -f 1)
@@ -66,7 +67,8 @@ for CA in ${LIST}; do
   echo -e "\n\n[Build PKI: ${CA}] Initializing ..."
   cd "${PKI_HOME}/${CA}"
   ln -sfv ../easyrsa .
-  ./easyrsa --batch init-pki
+  [ "${type}" = 'root' ] && ./easyrsa init-pki
+  [ "${type}" != 'root' ] && ./easyrsa --batch init-pki
 
   # If Root CA, create CA with self-signed certificate
   if [ "${type}" = 'root' ]; then
@@ -81,18 +83,23 @@ for CA in ${LIST}; do
 
   # Encrypt private key with password
   if [ -s "data/private/ca.key" ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ]; then
-    echo -e "[Build PKI: ${CA}] Protecting private key using password from file '${PKI_PASSWD}/${type}-${algo}-ca.passwd' ..."
-    [ ! -s "${PKI_PASSWD}/${type}-${algo}-ca.passwd" ] && pwgen -1sy 42 1 > "${PKI_PASSWD}/${type}-${algo}-ca.passwd"
-    mv -v "data/private/ca.key" "data/private/ca.nopasswd.key"
-    openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "data/private/ca.nopasswd.key" -passout file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd"
+    echo -e "[Build PKI: ${CA}] Protecting private key using password from file '${PKI_PASSWD}/${CA}/${CA}.passwd' ..."
+    [ ! -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ] && mkdir -pv "${PKI_PASSWD}/${CA}" && pwgen -1sy 42 1 > "${PKI_PASSWD}/${CA}/${CA}.passwd"
+    CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
+    cat "data/private/ca.key" > "${CA_KEY}" # copy unencrypted key into memory
+    rm -v "data/private/ca.key" #TODO: this should be srm or shred or something similar to delete securely
+    openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "${CA_KEY}" -passout file:"${PKI_PASSWD}/${CA}/${CA}.passwd"
+    ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key"
   fi
   if [ ! -s "data/private/ca.nopasswd.key" ]; then
-    echo -e "[Build PKI: ${CA}] Creating unprotected keyfile using password from file '${PKI_PASSWD}/${type}-${algo}-ca.passwd' ..."
-    if [ ! -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ]; then
-      echo -e "[Build PKI: ${CA}] ERROR - Private key is encrypted and password file was not found in ${PKI_HOME}/${type}-${algo}-ca.passwd"
+    echo -e "[Build PKI: ${CA}] Creating unprotected key file using password from file '${PKI_PASSWD}/${CA}/${CA}.passwd' ..."
+    if [ ! -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
+      echo -e "[Build PKI: ${CA}] ERROR - Private key is encrypted and password file was not found in ${PKI_PASSWD}/${CA}/${CA}.passwd"
       exit 1
     fi
-    openssl ${algo_openssl} -out "data/private/ca.nopasswd.key" -aes256 -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd" -passout pass:
+    CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
+    openssl ${algo_openssl} -out "${CA_KEY}" -aes256 -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
+    ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
   fi
 
   # Sub CA specific only
@@ -117,7 +124,7 @@ for CA in ${LIST}; do
 
   # Create full CA bundle file in PKCS#12 format
   echo -e "[Build PKI: ${CA}] Generating full CA bundle file in PKCS#12 format ..."
-  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passin file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd" -passout file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd"
+  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}.passwd"
 
   # Create public certificate file variants
   echo -e "[Build PKI: ${CA}] Generating other public certificate file variants ..."
@@ -140,6 +147,11 @@ for CA in ${LIST}; do
   echo -e "[Build PKI: ${CA}] Creating file exchange directory for automated sign request handling ..."
   mkdir -pv "${REQS}/${type}/${algo}"
 done
+
+# Delete unencrypted private keys for root CA's to disable any automatic
+# processing w/o reading the password file
+echo -e "[Build PKI] Cleaning up temp dir from memory ..."
+rm -rfv "${TMPDIR}"
 
 HOME="${CURRHOME}"
 cd "${CURRDIR}"
