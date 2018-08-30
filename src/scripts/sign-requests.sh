@@ -99,9 +99,9 @@ for TYPE in root client code email server; do
         [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
         chmod 644 "${REQ%.*}".full.crt
         if [ -s "${REQ%.*}".key ]; then
-          openssl pkcs12 -export -out "${REQ%.*}".nopasswd.pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
+          openssl pkcs12 -export -out "${REQ%.*}".nopasswd.p12 -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
           if [ -s "${REQ%.*}".passwd ]; then
-            openssl pkcs12 -export -out "${REQ%.*}".pfx -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".pfx
+            openssl pkcs12 -export -out "${REQ%.*}".p12 -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
             chmod 644 
           fi
         fi

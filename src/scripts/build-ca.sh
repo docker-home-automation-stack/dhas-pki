@@ -15,12 +15,26 @@ else
   ln -sf /usr/share/easy-rsa/easyrsa .
 fi
 
+echo "hostname: $(hostname)"
+echo "id: $(id)"
+echo "date: $(date --utc)"
+echo -e "cgroup:\n$(cat /proc/1/cgroup | sed -e 's/^/     /')"
+echo "openssl: $(type openssl), $(openssl version)"
+
 cd "${SVC_HOME}/root-ecc-ca"
 ln -sf ../easyrsa .
 ./easyrsa --batch init-pki
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC)" build-ca nopass
-openssl x509 -in "data/ca.crt" -out "data/ca.der" -outform der
-chmod 444 "data/ca.der"
+pwgen -1sy 42 1 > "data/private/ca.passwd"
+chmod 400 "data/private/ca.passwd"
+openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout pass:
+chmod 400 "data/private/ca.nopasswd.p12"
+openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
+chmod 440 "data/ca.p12"
+openssl x509 -out "data/ca.der" -outform der -in "data/ca.crt"
+openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt"
+openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt"
+chmod 444 "data/ca.der" "data/ca-bundle.der.p7b" "data/ca-bundle.pem.p7c"
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC), OCSP Responder" gen-req ca-ocsp nopass
 ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 mkdir -p "${REQS}/root/ecc"
@@ -31,8 +45,16 @@ cd "${SVC_HOME}/root-rsa-ca"
 ln -sf ../easyrsa .
 ./easyrsa --batch init-pki
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA)" build-ca nopass
-openssl x509 -in "data/ca.crt" -out "data/ca.der" -outform der
-chmod 444 "data/ca.der"
+pwgen -1sy 42 1 > "data/private/ca.passwd"
+chmod 400 "data/private/ca.passwd"
+openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout pass:
+chmod 400 "data/private/ca.nopasswd.p12"
+openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
+chmod 440 "data/ca.p12"
+openssl x509 -out "data/ca.der" -outform der -in "data/ca.crt"
+openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt"
+openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt"
+chmod 444 "data/ca.der" "data/ca-bundle.der.p7b" "data/ca-bundle.pem.p7c"
 ./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA), OCSP Responder" gen-req ca-ocsp nopass
 ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 mkdir -p "${REQS}/root/rsa"
@@ -62,10 +84,23 @@ for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
   cp "data/issued/${SUBCA}.crt" "${SVC_HOME}/${SUBCA}/data/ca.crt"
   cat "${SVC_HOME}/${SUBCA}/data/ca.crt" "data/ca.crt" > "${SVC_HOME}/${SUBCA}/data/ca-chain.crt"
 
-  # Create OCSP responder certificate
   cd "${SVC_HOME}/${SUBCA}"
-  openssl x509 -in "data/ca.crt" -out "data/ca.der" -outform der
-  chmod 444 "data/ca.der"
+
+  # Create public certificate + private key file variants
+  pwgen -1sy 42 1 > "data/private/ca.passwd"
+  chmod 400 "data/private/ca.passwd"
+  openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout pass:
+  chmod 400 "data/private/ca.nopasswd.p12"
+  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
+  chmod 440 "data/ca.p12"
+
+  # Create public certificate file variants
+  openssl x509 -out "data/ca.der" -outform der -in "data/ca.crt"
+  openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt" -certfile "${SVC_HOME}/root-${algo}-ca/data/ca.crt"
+  openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt" -certfile "${SVC_HOME}/root-${algo}-ca/data/ca.crt"
+  chmod 444 "data/ca.der" "data/ca-bundle.der.p7b" "data/ca-bundle.pem.p7c"
+
+  # Create OCSP responder certificate
   ./easyrsa --batch --req-cn="${CN} (${ALGO}), OCSP Responder" gen-req ca-ocsp nopass
   ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 

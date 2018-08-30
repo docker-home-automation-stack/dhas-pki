@@ -4,5 +4,5 @@
 # It could be used to add values every cert should have, such as a CDP as
 # demonstrated in the following example:
 
-#crlDistributionPoints = URI:http://example.net/pki/code-rsa-ca.crl
-#authorityInfoAccess = OCSP;URI:https://example.net/pki/ocsp
+#crlDistributionPoints = URI:http://example.net/pki/code-rsa/ca.crl
+#authorityInfoAccess = OCSP;URI:https://example.net/pki/ocsp/,caIssuers;URI:http://example.net/pki/code-rsa/ca.p7s

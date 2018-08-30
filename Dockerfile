@@ -42,7 +42,7 @@ ENV PKI_SERVERCA_UNIQUE_SUBJECT ${PKI_SERVERCA_UNIQUE_SUBJECT:-no}
 ENV PKI_SERVERCA_CRT_0 ${PKI_SERVERCA_CRT_0:-server1:DNS:*.server.lan,DNS:server.lan}
 
 ENV PKI_CRL_BASEURLS ${PKI_CRL_BASEURLS:-http://server.lan/pki/,http://example.com/pki/}
-ENV PKI_OCSP_BASEURLS ${PKI_OCSP_BASEURLS:-http://server.lan/ocsp/,http://example.com/ocsp/}
+ENV PKI_OCSP_BASEURLS ${PKI_OCSP_BASEURLS:-http://server.lan/pki/ocsp/,http://example.com/pki/ocsp/}
 
 ENV PKI_REQ_COUNTRY	${PKI_REQ_COUNTRY}
 ENV PKI_REQ_PROVINCE ${PKI_REQ_PROVINCE}

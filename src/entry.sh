@@ -24,7 +24,10 @@ fi
 if [ "${CMD}" = 'start' ]; then
   SUEXEC="su-exec ${SVC_USER}"
 
-  [ ! -s "${SVC_HOME}/easyrsa" ] && /usr/local/bin/build-ca.sh
+  if [ ! -s "${SVC_HOME}/easyrsa" ]; then
+    echo "Building PKI, this may take a while ..."
+    /usr/local/bin/build-ca.sh 2>&1 | tee -a "${SVC_HOME}/build-ca-audit.log"
+  fi
 
   /usr/local/bin/set-permissions.sh
 
