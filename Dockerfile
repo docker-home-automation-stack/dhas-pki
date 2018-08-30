@@ -84,6 +84,7 @@ RUN apk add --no-cache \
 
 WORKDIR ${SVC_HOME}
 VOLUME ${SVC_HOME}
+VOLUME ${SVC_HOME}.passwd
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "sh", "-c", "/entry.sh start ash -c 'trap : TERM INT; (while true; do /usr/local/bin/sign-requests.sh 2>&1 >/dev/null; sleep 10; done) & wait'" ]

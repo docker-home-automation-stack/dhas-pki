@@ -22,6 +22,7 @@ CURRHOME="${HOME}"
 CURRDIR=$(pwd)
 
 PKI_HOME=${PKI_HOME:-${SVC_HOME:-/pki}}
+PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
 PKI_TMPL=${PKI_TMPL:-${PKI_HOME}.tmpl}
 HOME="${PKI_HOME}"
 REQS="${PKI_HOME}/fifo"
@@ -80,19 +81,18 @@ for CA in ${LIST}; do
 
   # Encrypt private key with password
   if [ -s "data/private/ca.key" ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ]; then
-    echo -e "[Build PKI: ${CA}] Protecting private key using password from file data/private/ca.passwd ..."
-    [ -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ] && mv -f "${PKI_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd" || pwgen -1sy 42 1 > "data/private/ca.passwd"
+    echo -e "[Build PKI: ${CA}] Protecting private key using password from file '${PKI_PASSWD}/${type}-${algo}-ca.passwd' ..."
+    [ ! -s "${PKI_PASSWD}/${type}-${algo}-ca.passwd" ] && pwgen -1sy 42 1 > "${PKI_PASSWD}/${type}-${algo}-ca.passwd"
     mv -v "data/private/ca.key" "data/private/ca.nopasswd.key"
-    openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "data/private/ca.nopasswd.key" -passout file:data/private/ca.passwd
+    openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "data/private/ca.nopasswd.key" -passout file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd"
   fi
   if [ ! -s "data/private/ca.nopasswd.key" ]; then
-    echo -e "[Build PKI: ${CA}] Creating unprotected keyfile using password from file data/private/ca.passwd ..."
+    echo -e "[Build PKI: ${CA}] Creating unprotected keyfile using password from file '${PKI_PASSWD}/${type}-${algo}-ca.passwd' ..."
     if [ ! -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ]; then
       echo -e "[Build PKI: ${CA}] ERROR - Private key is encrypted and password file was not found in ${PKI_HOME}/${type}-${algo}-ca.passwd"
       exit 1
     fi
-    mv -f "${PKI_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd"
-    openssl ${algo_openssl} -out "data/private/ca.nopasswd.key" -aes256 -in "data/private/ca.key" -passin file:data/private/ca.passwd -passout pass:
+    openssl ${algo_openssl} -out "data/private/ca.nopasswd.key" -aes256 -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd" -passout pass:
   fi
 
   # Sub CA specific only
@@ -115,10 +115,9 @@ for CA in ${LIST}; do
 
   cd "${PKI_HOME}/${CA}"
 
-  # Create PKCS#12 public certificate + private key file variants
-  echo -e "[Build PKI: ${CA}] Generating CA file in PKCS#12 format ..."
-  openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout pass:
-  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
+  # Create full CA bundle file in PKCS#12 format
+  echo -e "[Build PKI: ${CA}] Generating full CA bundle file in PKCS#12 format ..."
+  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passin file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd" -passout file:"${PKI_PASSWD}/${type}-${algo}-ca.passwd"
 
   # Create public certificate file variants
   echo -e "[Build PKI: ${CA}] Generating other public certificate file variants ..."
