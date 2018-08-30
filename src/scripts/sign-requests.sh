@@ -1,8 +1,17 @@
 #!/bin/sh
 
-REQS="${SVC_HOME}/fifo"
+CURRHOME="${HOME}"
+CURRDIR=$(pwd)
+
+PKI_HOME=${PKI_HOME:-${SVC_HOME:-/pki}}
+PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
+PKI_TMPL=${PKI_TMPL:-${PKI_HOME}.tmpl}
+HOME="${PKI_HOME}"
+REQS="${PKI_HOME}/fifo"
+umask 0077
+
+TMPDIR="$(mktemp -d /dev/shm/XXXXXXXXXXXXXXXXXXX)"
 USERUID="$(id -u)"
-umask 0027
 
 if [ "${USERUID}" != 0 ] && [ "${USERUID}" != "${SVC_USER_ID}" ]; then
   echo "ERROR: Running this script with UID ${USERID} is prohibited."
@@ -23,6 +32,8 @@ for TYPE in root client code email server; do
   fi
 
   for ALGO in ecc rsa; do
+    algo_openssl=${ALGO}
+    [ "${algo_openssl}" = 'ecc' ] && algo_openssl="ec"
 
     SUDO="."
     [ "${TYPE}" = 'root' ] && SUDO="sudo -E"
@@ -57,6 +68,14 @@ for TYPE in root client code email server; do
 
         # sign request
         if [ "${RET_CODE}" = '0' ]; then
+
+          # Unlock CA private key
+          if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
+            CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
+            openssl ${algo_openssl} -out "${CA_KEY}" -aes256 -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
+            ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
+          fi
+
           SAN=$(./easyrsa show-req "${BASENAME}" | grep -A 1 "Subject Alternative Name:" | tail -n +2 | sed -e "s/ //g")
           [ ! "${SAN}" = "" ] && SAN="--subject-alt-name=\"${SAN}\""
           echo "[${TYPE}-${ALGO}-ca] Signing '${BASENAME}'"
@@ -87,7 +106,7 @@ for TYPE in root client code email server; do
         [ -s "data/dh.pem" ] && cp --force --preserve=mode,timestamps "data/dh.pem" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
 
         # generate password file
-        if [ -s "${REQ%.*}".key ] && [ ! -s "${REQ%.*}".passwd ]; then
+        if [ ! -s "${REQ%.*}".passwd ]; then
           if [ "${TYPE}" = 'client' ] || [ "${TYPE}" = 'email' ]; then
             pwgen -1Bcn 12 1 > "${REQ%.*}".passwd
           else
@@ -95,14 +114,18 @@ for TYPE in root client code email server; do
           fi
         fi
 
+        # Encrypt cert private key with password
+        [ -s "${REQ%.*}".key ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ] && mv -vf "${REQ%.*}".key "${REQ%.*}".nopasswd.key
+        [ ! -s "${REQ%.*}".key ] && [ -s "${REQ%.*}".nopasswd.key ] && openssl ${algo_openssl} -out "${REQ%.*}".key -aes256 -in "${REQ%.*}".nopasswd.key -passout file:"${REQ%.*}".passwd && chmod 660 "${REQ%.*}".key
+
         # certificate variants
         [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
         chmod 644 "${REQ%.*}".full.crt
-        if [ -s "${REQ%.*}".key ]; then
-          openssl pkcs12 -export -out "${REQ%.*}".nopasswd.p12 -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
+        if [ -s "${REQ%.*}".nopasswd.key ]; then
+          openssl pkcs12 -out "${REQ%.*}".nopasswd.p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
           if [ -s "${REQ%.*}".passwd ]; then
-            openssl pkcs12 -export -out "${REQ%.*}".p12 -inkey "${REQ%.*}".key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
-            chmod 644 
+            openssl pkcs12 -out "${REQ%.*}".p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
+            chmod 644 "${REQ%.*}".p12
           fi
         fi
 
@@ -129,6 +152,7 @@ for TYPE in root client code email server; do
   done
 done
 
-cd "${SVC_HOME}"
-
+rm -rfv "${TMPDIR}"
+HOME="${CURRHOME}"
+cd "${CURRDIR}"
 exit 0

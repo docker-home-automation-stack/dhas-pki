@@ -1,7 +1,16 @@
 #!/bin/sh
 
+CURRHOME="${HOME}"
+CURRDIR=$(pwd)
+
+PKI_HOME=${PKI_HOME:-${SVC_HOME:-/pki}}
+PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
+PKI_TMPL=${PKI_TMPL:-${PKI_HOME}.tmpl}
+HOME="${PKI_HOME}"
+REQS="${PKI_HOME}/fifo"
+umask 0077
+
 i=0
-REQS="${SVC_HOME}/fifo"
 
 [ ! -s "${SVC_HOME}/easyrsa" ] && exit 1
 
@@ -33,9 +42,7 @@ for TYPE in client code email server; do
 
       if [ "${RET_CODE}" = '0' ]; then
         mv data/reqs/${CN}.req "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
-        chmod 644 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.req"
-        mv data/private/${CN}.key "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/"
-        chmod 640 "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.key"
+        mv data/private/${CN}.key "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/${CN}.nopasswd.key"
       fi
 
     done
@@ -44,4 +51,6 @@ for TYPE in client code email server; do
   done
 done
 
+HOME="${CURRHOME}"
+cd "${CURRDIR}"
 exit 0

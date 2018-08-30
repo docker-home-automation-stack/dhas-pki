@@ -81,7 +81,7 @@ for CA in ${LIST}; do
     ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
   fi
 
-  # Encrypt private key with password
+  # Encrypt CA private key with password
   if [ -s "data/private/ca.key" ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ]; then
     echo -e "[Build PKI: ${CA}] Protecting private key using password from file '${PKI_PASSWD}/${CA}/${CA}.passwd' ..."
     [ ! -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ] && mkdir -pv "${PKI_PASSWD}/${CA}" && pwgen -1sy 42 1 > "${PKI_PASSWD}/${CA}/${CA}.passwd"
@@ -91,6 +91,8 @@ for CA in ${LIST}; do
     openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "${CA_KEY}" -passout file:"${PKI_PASSWD}/${CA}/${CA}.passwd"
     ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key"
   fi
+
+  # Unlock CA private key
   if [ ! -s "data/private/ca.nopasswd.key" ]; then
     echo -e "[Build PKI: ${CA}] Creating unprotected key file using password from file '${PKI_PASSWD}/${CA}/${CA}.passwd' ..."
     if [ ! -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
@@ -157,3 +159,4 @@ rm -rfv "${TMPDIR}"
 
 HOME="${CURRHOME}"
 cd "${CURRDIR}"
+exit 0
