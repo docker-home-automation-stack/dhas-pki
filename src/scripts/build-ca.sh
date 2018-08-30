@@ -124,7 +124,11 @@ for CA in ${LIST}; do
 
   # Create full CA bundle file in PKCS#12 format
   echo -e "[Build PKI: ${CA}] Generating full CA bundle file in PKCS#12 format ..."
-  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}.passwd"
+  if [ "${type}" = 'root' ]; then
+    openssl pkcs12 -out "data/ca.p12" -export -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}.passwd"
+  else
+    openssl pkcs12 -out "data/ca.p12" -export -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -certfile "${PKI_HOME}/root-${algo}-ca/data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}.passwd"
+  fi
 
   # Create public certificate file variants
   echo -e "[Build PKI: ${CA}] Generating other public certificate file variants ..."
@@ -148,8 +152,6 @@ for CA in ${LIST}; do
   mkdir -pv "${REQS}/${type}/${algo}"
 done
 
-# Delete unencrypted private keys for root CA's to disable any automatic
-# processing w/o reading the password file
 echo -e "[Build PKI] Cleaning up temp dir from memory ..."
 rm -rfv "${TMPDIR}"
 
