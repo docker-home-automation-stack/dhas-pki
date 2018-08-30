@@ -80,9 +80,21 @@ for CA in ${LIST}; do
 
 
   # Encrypt private key with password
-  echo -e "[Build PKI: ${CA}] Protecting private key with password in data/private/ca.passwd ..."
-  [ -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ] && mv -f "${PKI_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd" || pwgen -1sy 42 1 > "data/private/ca.passwd"
-  openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "data/private/ca.nopasswd.key" -passout file:data/private/ca.passwd
+  if [ -s "data/private/ca.key" ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ]; then
+    echo -e "[Build PKI: ${CA}] Protecting private key using password from file data/private/ca.passwd ..."
+    [ ! -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ] && mv -f "${PKI_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd" || pwgen -1sy 42 1 > "data/private/ca.passwd"
+    mv -v "data/private/ca.key" "data/private/ca.nopasswd.key"
+    openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "data/private/ca.nopasswd.key" -passout file:data/private/ca.passwd
+  fi
+  if [ ! -s "data/private/ca.nopasswd.key" ]; then
+    echo -e "[Build PKI: ${CA}] Creating unprotected keyfile using password from file data/private/ca.passwd ..."
+    if [ ! -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ]; then
+      echo -e "[Build PKI: ${CA}] ERROR - Private key is encrypted and password file was not found in ${PKI_HOME}/${type}-${algo}-ca.passwd"
+      exit 1
+    fi
+    mv -f "${PKI_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd"
+    openssl ${algo_openssl} -out "data/private/ca.nopasswd.key" -aes256 -in "data/private/ca.key" -passin file:data/private/ca.passwd -passout pass:
+  fi
 
   # Sub CA specific only
   if [ "${type}" != 'root' ]; then
