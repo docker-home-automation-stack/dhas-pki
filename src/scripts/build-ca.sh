@@ -62,7 +62,7 @@ for CA in ${LIST}; do
   CN=$(eval "echo \${PKI_${TYPE}CA_CN:-$CA}")
 
   # Initialize CA
-  echo -e "[Build PKI: ${CA}] Initializing ..."
+  echo -e "\n\n[Build PKI: ${CA}] Initializing ..."
   cd "${PKI_HOME}/${CA}"
   ln -sfv ../easyrsa .
   ./easyrsa --batch init-pki
@@ -78,11 +78,10 @@ for CA in ${LIST}; do
     ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
   fi
 
-
   # Encrypt private key with password
   if [ -s "data/private/ca.key" ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ]; then
     echo -e "[Build PKI: ${CA}] Protecting private key using password from file data/private/ca.passwd ..."
-    [ ! -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ] && mv -f "${PKI_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd" || pwgen -1sy 42 1 > "data/private/ca.passwd"
+    [ -s "${PKI_HOME}/${type}-${algo}-ca.passwd" ] && mv -f "${PKI_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd" || pwgen -1sy 42 1 > "data/private/ca.passwd"
     mv -v "data/private/ca.key" "data/private/ca.nopasswd.key"
     openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "data/private/ca.nopasswd.key" -passout file:data/private/ca.passwd
   fi
