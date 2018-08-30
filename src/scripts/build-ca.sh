@@ -15,98 +15,100 @@ else
   ln -sf /usr/share/easy-rsa/easyrsa .
 fi
 
-echo "hostname: $(hostname)"
+echo -e "\n\n\nNOW GENERATING NEW PKI\n=====================\n"
+echo "[Build PKI] Printing system environment details ..."
+echo "uname: $(uname --all)"
+echo "version: $(cat /proc/version)"
+echo -e "release:\n$(cat /etc/*-release | sed -e 's/^/     /')"
 echo "id: $(id)"
 echo "date: $(date --utc)"
 echo -e "cgroup:\n$(cat /proc/1/cgroup | sed -e 's/^/     /')"
 echo "openssl: $(type openssl), $(openssl version)"
 
-cd "${SVC_HOME}/root-ecc-ca"
-ln -sf ../easyrsa .
-./easyrsa --batch init-pki
-./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC)" build-ca nopass
-pwgen -1sy 42 1 > "data/private/ca.passwd"
-chmod 400 "data/private/ca.passwd"
-openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout pass:
-chmod 400 "data/private/ca.nopasswd.p12"
-openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
-chmod 440 "data/ca.p12"
-openssl x509 -out "data/ca.der" -outform der -in "data/ca.crt"
-openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt"
-openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt"
-chmod 444 "data/ca.der" "data/ca-bundle.der.p7b" "data/ca-bundle.pem.p7c"
-./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (ECC), OCSP Responder" gen-req ca-ocsp nopass
-./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
-mkdir -p "${REQS}/root/ecc"
-chmod 755 "${REQS}" "${REQS}/root"
-chmod 710 "${REQS}/root/ecc"
+LIST="$(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep root-)"
+LIST="${LIST} $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-)"
 
-cd "${SVC_HOME}/root-rsa-ca"
-ln -sf ../easyrsa .
-./easyrsa --batch init-pki
-./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA)" build-ca nopass
-pwgen -1sy 42 1 > "data/private/ca.passwd"
-chmod 400 "data/private/ca.passwd"
-openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout pass:
-chmod 400 "data/private/ca.nopasswd.p12"
-openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
-chmod 440 "data/ca.p12"
-openssl x509 -out "data/ca.der" -outform der -in "data/ca.crt"
-openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt"
-openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt"
-chmod 444 "data/ca.der" "data/ca-bundle.der.p7b" "data/ca-bundle.pem.p7c"
-./easyrsa --batch --req-cn="${PKI_ROOTCA_CN} (RSA), OCSP Responder" gen-req ca-ocsp nopass
-./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
-mkdir -p "${REQS}/root/rsa"
-chmod 755 "${REQS}" "${REQS}/root"
-chmod 710 "${REQS}/root/rsa"
-
-for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
-  type=$(echo "${SUBCA}" | cut -d "-" -f 1)
+for CA in ${LIST}; do
+  type=$(echo "${CA}" | cut -d "-" -f 1)
   TYPE=$(echo "${type}" | tr '[:lower:]' '[:upper:]')
-  algo=$(echo "${SUBCA}" | cut -d "-" -f 2)
+  algo=$(echo "${CA}" | cut -d "-" -f 2)
+  algo_openssl=${algo}
+  [ "${algo_openssl}" = 'ecc' ] && algo_openssl="ec"
   ALGO=$(echo "${algo}" | tr '[:lower:]' '[:upper:]')
-  CN=$(eval "echo \${PKI_${TYPE}CA_CN:-$SUBCA}")
+  CN=$(eval "echo \${PKI_${TYPE}CA_CN:-$CA}")
 
-  # create CA and signing request
-  cd "${SVC_HOME}/${SUBCA}"
+  # Initialize CA
+  echo -e "[Build ${CA}] Initializing ..."
+  cd "${SVC_HOME}/${CA}"
   ln -sf ../easyrsa .
   ./easyrsa --batch init-pki
-  ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
-  [ -s dh.pem ] && mv dh.pem data/
-  [ ! -s data/dh.pem ] && ./easyrsa --batch gen-dh
-  chmod 444 data/dh.pem
 
-  # sign Sub CA with Root CA
-  cd "${SVC_HOME}/root-${algo}-ca"
-  ./easyrsa --batch import-req "${SVC_HOME}/${SUBCA}/data/reqs/ca.req" "${SUBCA}"
-  ./easyrsa --batch sign-req ca "${SUBCA}"
-  cp "data/issued/${SUBCA}.crt" "${SVC_HOME}/${SUBCA}/data/ca.crt"
-  cat "${SVC_HOME}/${SUBCA}/data/ca.crt" "data/ca.crt" > "${SVC_HOME}/${SUBCA}/data/ca-chain.crt"
+  # If Root CA, create CA with self-signed certificate
+  if [ "${type}" = 'root' ]; then
+    echo -e "[Build ${CA}] Creating CA private key and self-signed certificate ..."
+    ./easyrsa --batch --req-cn="${CN} (${ALGO})" build-ca nopass
 
-  cd "${SVC_HOME}/${SUBCA}"
+  # If Sub CA, create CA private key and signing request
+  else
+    echo -e "[Build ${CA}] Creating CA private key and certificate signing request ..."
+    ./easyrsa --batch --req-cn="${CN} (${ALGO})" --subca-len=0 build-ca nopass subca
+  fi
 
-  # Create public certificate + private key file variants
-  pwgen -1sy 42 1 > "data/private/ca.passwd"
+
+  # Encrypt private key with password
+  echo -e "[Build ${CA}] Protecting private key with password in data/private/ca.passwd ..."
+  [ -s "${SVC_HOME}/${type}-${algo}-ca.passwd" ] && mv -f "${SVC_HOME}/${type}-${algo}-ca.passwd" "data/private/ca.passwd" || pwgen -1sy 42 1 > "data/private/ca.passwd"
   chmod 400 "data/private/ca.passwd"
-  openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout pass:
+  openssl ${algo_openssl} -out "data/private/ca.key" -aes256 -in "data/private/ca.nopasswd.key" -passout file:data/private/ca.passwd
+
+  # Sub CA specific only
+  if [ "${type}" != 'root' ]; then
+
+    # create DH file
+    echo -e "[Build ${CA}] Creating Diffie-Hellman file ..."
+    [ -s dh.pem ] && mv -f dh.pem data/
+    [ ! -s data/dh.pem ] && ./easyrsa --batch gen-dh
+    chmod 444 data/dh.pem
+
+    # Sign Sub CA with Root CA
+    echo -e "[Build ${CA}] Generating signed CA certificate with Root ${ALGO} CA ..."
+    cd "${SVC_HOME}/root-${algo}-ca"
+    ./easyrsa --batch import-req "${SVC_HOME}/${CA}/data/reqs/ca.req" "${CA}"
+    ./easyrsa --batch sign-req ca "${CA}"
+    cp "data/issued/${CA}.crt" "${SVC_HOME}/${CA}/data/ca.crt"
+    cat "data/issued/${CA}.crt" "data/ca.crt" > "${SVC_HOME}/${CA}/data/ca-chain.crt"
+
+  fi
+
+  cd "${SVC_HOME}/${CA}"
+
+  # Create PKCS#12 public certificate + private key file variants
+  echo -e "[Build ${CA}] Generating CA file in PKCS#12 format ..."
+  openssl pkcs12 -export -out "data/private/ca.nopasswd.p12" -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout pass:
   chmod 400 "data/private/ca.nopasswd.p12"
-  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
+  openssl pkcs12 -export -out "data/ca.p12" -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout file:data/private/ca.passwd
   chmod 440 "data/ca.p12"
 
   # Create public certificate file variants
+  echo -e "[Build ${CA}] Generating other public certificate file variants ..."
   openssl x509 -out "data/ca.der" -outform der -in "data/ca.crt"
-  openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt" -certfile "${SVC_HOME}/root-${algo}-ca/data/ca.crt"
-  openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt" -certfile "${SVC_HOME}/root-${algo}-ca/data/ca.crt"
+  if [ "${type}" = 'root' ]; then
+    openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt"
+    openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt"
+  else
+    openssl crl2pkcs7 -out "data/ca-bundle.der.p7b" -nocrl -outform der -certfile "data/ca.crt" -certfile "${SVC_HOME}/root-${algo}-ca/data/ca.crt"
+    openssl crl2pkcs7 -out "data/ca-bundle.pem.p7c" -nocrl -outform pem -certfile "data/ca.crt" -certfile "${SVC_HOME}/root-${algo}-ca/data/ca.crt"
+  fi
   chmod 444 "data/ca.der" "data/ca-bundle.der.p7b" "data/ca-bundle.pem.p7c"
 
   # Create OCSP responder certificate
+  echo -e "[Build ${CA}] Generating OCSP responder private key and signing request ..."
   ./easyrsa --batch --req-cn="${CN} (${ALGO}), OCSP Responder" gen-req ca-ocsp nopass
+  echo -e "[Build ${CA}] Generating signed OCSP Responder certificate ..."
   ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 
   # create fifo directory
   mkdir -p "${REQS}/${type}/${algo}"
-  chown ${SVC_USER}:${SVC_GROUP} "${REQS}/${type}/${algo}"
   chmod 755 "${REQS}" "${REQS}/${type}"
   chmod 710 "${REQS}/${type}/${algo}"
 done
