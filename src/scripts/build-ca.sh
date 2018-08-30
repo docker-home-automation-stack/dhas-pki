@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 echo -e "\n\n\nNOW GENERATING NEW PKI\n======================\n"
 
@@ -22,30 +22,35 @@ CURRHOME="${HOME}"
 CURRDIR=$(pwd)
 
 PKI_HOME=${PKI_HOME:-${SVC_HOME:-/pki}}
+PKI_TMPL=${PKI_TMPL:-${PKI_HOME}.tmpl}
 HOME="${PKI_HOME}"
 REQS="${PKI_HOME}/fifo"
 umask 0077
 
-cd "${PKI_HOME}"
-
 echo -e "[Build PKI] General initialization ..."
-cp -rfv /pki.tmpl/* ./
-cp -rfv /pki.tmpl/.gitignore ./
+mkdir -vp "${PKI_HOME}"
+cd "${PKI_HOME}"
+if [ -d "${PKI_TMPL}" ]; then
+  cp -rfv "${PKI_TMPL}"/* ./
+  cp -rfv "${PKI_TMPL}"/.gitignore ./
 
-if [ -s ./easyrsa ]; then
-  rm -v easyrsa
-  ln -sfv /pki.tmpl/easyrsa .
-else
+  if [ -e ./easyrsa ]; then
+    rm -v easyrsa
+    ln -sfv /pki.tmpl/easyrsa .
+  else
+    ln -sfv /usr/share/easy-rsa/easyrsa .
+  fi
+elif [ ! -e ./easyrsa ]; then
   ln -sfv /usr/share/easy-rsa/easyrsa .
 fi
 
-LIST="$(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep root-)"
+LIST="$(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep ^root-)"
 if [ "${LIST}" = '' ]; then
   echo "ERROR: ${PKI_HOME} does not contain any initial Root CA data structure"
   exit 1
 fi
 
-LIST="${LIST} $(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep -v root-)"
+LIST="${LIST} $(ls ${PKI_HOME}/ | grep -E "^.*-ca$" | grep -v ^root-)"
 
 for CA in ${LIST}; do
   type=$(echo "${CA}" | cut -d "-" -f 1)
