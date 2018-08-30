@@ -18,10 +18,12 @@ echo " date: $(date --utc)"
 echo -e " cgroup:\n$(cat /proc/1/cgroup | sed -e 's/^/     /')"
 echo " openssl: $(type openssl), $(openssl version)"
 
+CURRHOME="${HOME}"
+CURRDIR=$(pwd)
+
 SVC_HOME=${SVC_HOME:-/pki}
 HOME="${SVC_HOME}"
 REQS="${SVC_HOME}/fifo"
-CURRDIR=$(pwd)
 umask 0077
 
 cd "${SVC_HOME}"
@@ -124,4 +126,5 @@ for CA in ${LIST}; do
   mkdir -pv "${REQS}/${type}/${algo}"
 done
 
+HOME="${CURRHOME}"
 cd "${CURRDIR}"
