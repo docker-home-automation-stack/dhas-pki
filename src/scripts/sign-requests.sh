@@ -96,7 +96,6 @@ for TYPE in root client code email server; do
         # copy certificate
         echo "[${TYPE}-${ALGO}-ca] Exporting '${BASENAME}.crt' to '${REQ%.*}.crt'"
         cp -f "data/issued/${BASENAME}.crt" "${REQ%.*}.crt"
-        chmod 644 "${REQ%.*}.crt"
 
         # copy CA chain
         [ -s "data/ca.crt" ] && cp --force --preserve=mode,timestamps "data/ca.crt" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/ca.crt"
@@ -116,16 +115,14 @@ for TYPE in root client code email server; do
 
         # Encrypt cert private key with password
         [ -s "${REQ%.*}".key ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ] && mv -vf "${REQ%.*}".key "${REQ%.*}".nopasswd.key
-        [ ! -s "${REQ%.*}".key ] && [ -s "${REQ%.*}".nopasswd.key ] && openssl ${algo_openssl} -out "${REQ%.*}".key -aes256 -in "${REQ%.*}".nopasswd.key -passout file:"${REQ%.*}".passwd && chmod 660 "${REQ%.*}".key
+        [ ! -s "${REQ%.*}".key ] && [ -s "${REQ%.*}".nopasswd.key ] && openssl ${algo_openssl} -out "${REQ%.*}".key -aes256 -in "${REQ%.*}".nopasswd.key -passout file:"${REQ%.*}".passwd
 
         # certificate variants
         [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
-        chmod 644 "${REQ%.*}".full.crt
         if [ -s "${REQ%.*}".nopasswd.key ]; then
           openssl pkcs12 -out "${REQ%.*}".nopasswd.p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
           if [ -s "${REQ%.*}".passwd ]; then
             openssl pkcs12 -out "${REQ%.*}".p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
-            chmod 644 "${REQ%.*}".p12
           fi
         fi
 
