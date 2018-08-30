@@ -1,25 +1,27 @@
 #!/bin/sh
 
-echo -e "\n\n\nNOW GENERATING NEW PKI\n=====================\n"
+echo -e "\n\n\nNOW GENERATING NEW PKI\n======================\n"
 
 echo "[Build PKI Audit] Printing script run parameters ..."
-echo "$0 $@"
+echo " $0 $@"
 
 echo "[Build PKI Audit] Printing the script file itself ..."
 echo "$(cat $0 | sed -e 's/^/     /')"
 
 echo -e "\n\n[Build PKI Audit] Printing system environment details ..."
-echo "uname: $(uname --all)"
-echo "version: $(cat /proc/version)"
+echo " uname: $(uname --all)"
+echo " version: $(cat /proc/version)"
 echo -e "release:\n$(cat /etc/*-release | sed -e 's/^/     /')"
-echo "id: $(id)"
-echo -e "environment:\n$(env | sed -e 's/^/     /')"
-echo "date: $(date --utc)"
-echo -e "cgroup:\n$(cat /proc/1/cgroup | sed -e 's/^/     /')"
-echo "openssl: $(type openssl), $(openssl version)"
+echo " id: $(id)"
+echo -e " environment:\n$(env | sed -e 's/^/     /')"
+echo " date: $(date --utc)"
+echo -e " cgroup:\n$(cat /proc/1/cgroup | sed -e 's/^/     /')"
+echo " openssl: $(type openssl), $(openssl version)"
 
+SVC_HOME=${SVC_HOME:-/pki}
 HOME="${SVC_HOME}"
 REQS="${SVC_HOME}/fifo"
+CURRDIR=$(pwd)
 umask 0077
 
 cd "${SVC_HOME}"
@@ -36,6 +38,11 @@ else
 fi
 
 LIST="$(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep root-)"
+if [ "${LIST}" = '' ]; then
+  echo "ERROR: ${SVC_HOME} does not contain any initial Root CA data structure"
+  exit 1
+fi
+
 LIST="${LIST} $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-)"
 
 for CA in ${LIST}; do
@@ -117,4 +124,4 @@ for CA in ${LIST}; do
   mkdir -pv "${REQS}/${type}/${algo}"
 done
 
-cd "${SVC_HOME}"
+cd "${CURRDIR}"
