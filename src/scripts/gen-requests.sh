@@ -8,7 +8,7 @@ PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
 PKI_TMPL=${PKI_TMPL:-${PKI_HOME}.tmpl}
 HOME="${PKI_HOME}"
 REQS="${PKI_HOME}/fifo"
-umask 0077
+umask 0007
 
 i=0
 

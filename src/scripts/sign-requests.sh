@@ -8,15 +8,16 @@ PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
 PKI_TMPL=${PKI_TMPL:-${PKI_HOME}.tmpl}
 HOME="${PKI_HOME}"
 REQS="${PKI_HOME}/fifo"
-umask 0077
+umask 0007
 
-TMPDIR="$(mktemp -d /dev/shm/XXXXXXXXXXXXXXXXXXX)"
 USERUID="$(id -u)"
 
 if [ "${USERUID}" != 0 ] && [ "${USERUID}" != "${SVC_USER_ID}" ]; then
   echo "ERROR: Running this script with UID ${USERID} is prohibited."
   exit 1
 fi
+
+TMPDIR="$(mktemp -d /dev/shm/XXXXXXXXXXXXXXXXXXX)"
 
 for TYPE in root client code email server; do
 
@@ -156,7 +157,7 @@ for TYPE in root client code email server; do
   done
 done
 
-rm -rfv "${TMPDIR}"
+rm -rf "${TMPDIR}"
 HOME="${CURRHOME}"
 cd "${CURRDIR}"
 exit 0
