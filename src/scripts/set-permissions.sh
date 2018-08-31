@@ -8,7 +8,7 @@ find "${PKI_HOME}" -xdev -type l -exec test ! -e {} \; -delete
 chown -R -h root:${SVC_GROUP} "${PKI_PASSWD}" "${PKI_HOME}/.gitignore" "${PKI_HOME}/.rnd"
 chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}"
 chmod 751 "${REQS}"
-chmod 700 "${PKI_PASSWD}"
+chmod 710 "${PKI_PASSWD}"
 chmod 751 "${PKI_HOME}"
 chmod 555 "${PKI_HOME}/easyrsa"
 chmod 660 "${PKI_HOME}/.rnd"
