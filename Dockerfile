@@ -74,7 +74,6 @@ RUN apk add --no-cache \
       easy-rsa \
       gettext \
       openssl \
-      pass \
       pwgen \
       su-exec \
       sudo \

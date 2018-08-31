@@ -32,8 +32,8 @@ echo -e "[Build PKI] General initialization ..."
 mkdir -vp "${PKI_HOME}" "${PKI_PASSWD}"
 cd "${PKI_HOME}"
 if [ -d "${PKI_TMPL}" ]; then
-  cp -rfv "${PKI_TMPL}"/* ./
-  cp -rfv "${PKI_TMPL}"/.gitignore ./
+  cp -rnv "${PKI_TMPL}"/* ./
+  cp -rnv "${PKI_TMPL}"/.gitignore ./
 
   if [ -e ./easyrsa ]; then
     rm -v easyrsa
