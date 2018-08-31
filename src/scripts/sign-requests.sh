@@ -71,9 +71,9 @@ for TYPE in root client code email server; do
         if [ "${RET_CODE}" = '0' ]; then
 
           # Unlock CA private key
-          if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
+          if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" ]; then
             CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-            openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
+            openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" -passout pass:
             ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
           fi
 

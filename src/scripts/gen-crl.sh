@@ -1,7 +1,7 @@
 #!/bin/sh
 
-[ "$1" = ''] && exit 1
-[ "$2" = ''] && exit 1
+[ -z "$1" ] && exit 1
+[ -z "$2" ] && exit 1
 
 CURRHOME="${HOME}"
 CURRDIR=$(pwd)
