@@ -5,11 +5,10 @@ PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
 REQS="${PKI_HOME}/fifo"
 
 find "${PKI_HOME}" -xdev -type l -exec test ! -e {} \; -delete
-chown -R -h root:root "${PKI_HOME}/.gitignore"
-chown -R -h root:${SVC_GROUP} "${PKI_PASSWD}" "${PKI_HOME}/.rnd"
+chown -R -h root:${SVC_GROUP} "${PKI_PASSWD}" "${PKI_HOME}/.gitignore" "${PKI_HOME}/.rnd"
 chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}"
 chmod 751 "${REQS}"
-chmod 710 "${PKI_PASSWD}"
+chmod 700 "${PKI_PASSWD}"
 chmod 751 "${PKI_HOME}"
 chmod 555 "${PKI_HOME}/easyrsa"
 chmod 660 "${PKI_HOME}/.rnd"
@@ -29,9 +28,9 @@ for CA in $(ls "${PKI_HOME}/" | grep -E "^.*-ca$"); do
     chown root:${SVC_GROUP} "${DIR}" "${DIR}/data"
   else
     chown -R -h ${SVC_USER}:${SVC_GROUP} "${DIR}"
-    chown -R -h root:${SVC_GROUP} "${DIRPASSWD}"
-    chmod 710 "${DIRPASSWD}"
-    chmod 640 "${DIRPASSWD}"/*.passwd
+    chown -R -h ${SVC_USER}:root "${DIRPASSWD}"
+    chmod 700 "${DIRPASSWD}"
+    chmod 600 "${DIRPASSWD}"/*.passwd
   fi
   chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}/${CA/-*}/$(echo ${CA} | cut -d - -f 2)"
 
