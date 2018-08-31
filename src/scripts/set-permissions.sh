@@ -30,6 +30,8 @@ for CA in $(ls "${PKI_HOME}/" | grep -E "^.*-ca$"); do
   else
     chown -R -h ${SVC_USER}:${SVC_GROUP} "${DIR}"
     chown -R -h root:${SVC_GROUP} "${DIRPASSWD}"
+    chmod 710 "${DIRPASSWD}"
+    chmod 640 "${DIRPASSWD}"/*.passwd
   fi
   chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}/${CA/-*}/$(echo ${CA} | cut -d - -f 2)"
 

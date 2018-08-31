@@ -32,8 +32,10 @@ echo -e "[Build PKI] General initialization ..."
 mkdir -vp "${PKI_HOME}" "${PKI_PASSWD}"
 cd "${PKI_HOME}"
 if [ -d "${PKI_TMPL}" ]; then
-  cp -rnv "${PKI_TMPL}"/* ./
-  cp -rnv "${PKI_TMPL}"/.gitignore ./
+  set +e
+  cp -rfv "${PKI_TMPL}"/* ./
+  cp -rfv "${PKI_TMPL}"/.gitignore ./
+  set -e
 
   if [ -e ./easyrsa ]; then
     rm -v easyrsa
@@ -68,8 +70,7 @@ for CA in ${LIST}; do
   echo -e "\n\n[Build PKI: ${CA}] Initializing ..."
   cd "${DIR}"
   ln -sfv ../easyrsa .
-  [ "${type}" = 'root' ] && ./easyrsa init-pki
-  [ "${type}" != 'root' ] && ./easyrsa --batch init-pki
+  ./easyrsa --batch init-pki
 
   # If Root CA, create CA with self-signed certificate
   if [ "${type}" = 'root' ]; then
