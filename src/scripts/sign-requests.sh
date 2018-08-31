@@ -48,7 +48,7 @@ for TYPE in root client code email server; do
         [ -s "${REQ%.*}".crt ] && continue # ignore already signed certificate
         FILENAME="${REQ##*/}"
         BASENAME="${REQUESTOR}--${FILENAME%.*}"
-        CA="${CA}"
+        CA="${TYPE}-${ALGO}-ca"
 
         if [ "${TYPE}" = 'root' ] && [ "${USERUID}" != 0 ]; then
           echo "Pending signing request for Root CA requires manual attention: ${REQ}"
