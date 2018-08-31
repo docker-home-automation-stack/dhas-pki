@@ -127,9 +127,9 @@ for CA in ${LIST}; do
   # Create full CA bundle file in PKCS#12 format
   echo -e "[Build PKI: ${CA}] Generating full CA bundle file in PKCS#12 format ..."
   if [ "${type}" = 'root' ]; then
-    openssl pkcs12 -out "data/ca.p12" -export -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}.passwd"
+    openssl pkcs12 -out "data/private/ca.p12" -export -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}/${CA}.passwd"
   else
-    openssl pkcs12 -out "data/ca.p12" -export -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -certfile "${PKI_HOME}/root-${algo}-ca/data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}.passwd"
+    openssl pkcs12 -out "data/private/ca.p12" -export -inkey "data/private/ca.nopasswd.key" -in "data/ca.crt" -certfile "${PKI_HOME}/root-${algo}-ca/data/ca.crt" -passout file:"${PKI_PASSWD}/${CA}/${CA}.passwd"
   fi
 
   # Create public certificate file variants

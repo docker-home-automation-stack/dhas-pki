@@ -1,47 +1,50 @@
-#!/bin/sh
-set +e
+#!/bin/sh +e
 
-cd "${SVC_HOME}"
-mkdir -p fifo
-chown -R -h root:${SVC_GROUP} . .rnd
-chown -R -h ${SVC_USER}:${SVC_GROUP} fifo
-chmod 751 fifo
-chmod 555 easyrsa
-chmod 660 .rnd
+PKI_HOME=${PKI_HOME:-${SVC_HOME:-/pki}}
+PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
+REQS="${PKI_HOME}/fifo"
+
+for DIR in $(find "${PKI_HOME}" -mindepth 1 -maxdepth 1 -type d | grep -v "^${REQS}") "${PKI_HOME}/.gitignore" "${PKI_HOME}/.rnd"; do
+  chown -R -h root:${SVC_GROUP} "${DIR}"
+done
+chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}"
+chmod 751 "${REQS}"
+chmod 555 "${PKI_HOME}/easyrsa"
+chmod 660 "${PKI_HOME}/.gitignore" "${PKI_HOME}/.rnd"
 
 # enforce directory and file permissions for Root CA
-for TYPE in ecc rsa; do
-  cd "${SVC_HOME}/root-${TYPE}-ca"
-  chown -R -h root:root .
-  chown root:${SVC_GROUP} . data
-  find . -type d -exec chmod 700 {} \;
-  find . -type f -exec chmod 600 {} \;
-  chmod 750 . data
-  chmod 444 data/ca.crt data/ca.der
-  chmod 644 data/crl.pem data/crl.der
+for ROOTCA in $(ls "${PKI_HOME}/" | grep -E "^.*-ca$" | grep ^root-); do
+  chown -R -h root:root "${ROOTCA}"
+  chown root:${SVC_GROUP} "${ROOTCA}" "${ROOTCA}/data"
+  find "${ROOTCA}" -type d -exec chmod 700 {} \;
+  find "${ROOTCA}" -type f -exec chmod 600 {} \;
+  chmod 750 "${ROOTCA}" "${ROOTCA}/data"
+  chmod 444 "${ROOTCA}/data/ca-bundle."* "${ROOTCA}/data/ca.crt" "${ROOTCA}/data/ca.der"
+  chmod 644 "${ROOTCA}/data/crl.pem" "${ROOTCA}/data/crl.der"
 done
 
-for SUBCA in $(ls ${SVC_HOME}/ | grep -E "^.*-ca$" | grep -v root-); do
-  
+for SUBCA in $(ls "${PKI_HOME}/" | grep -E "^.*-ca$" | grep -v ^root-); do
+
   # fifo directory for Sub CA
-  mkdir -p "${SVC_HOME}/fifo/${SUBCA/-*}" "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  chown -R -h ${SVC_USER}:${SVC_GROUP} "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  chmod 755 "${SVC_HOME}/fifo/${SUBCA/-*}"
-  chmod 710 "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  find "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -mindepth 1 -type d -exec chmod 770 {} \;
-  find "${SVC_HOME}/fifo/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -type f -name "*.key" -exec chmod 660 {} \;
+  mkdir -p "${REQS}/${SUBCA/-*}" "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
+  chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
+  chmod 755 "${REQS}/${SUBCA/-*}"
+  chmod 710 "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
+  find "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -mindepth 1 -type d -exec chmod 770 {} \;
+  find "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -type f -name "*.key" -exec chmod 660 {} \;
 
   # enforce directory and file permissions for Sub CA
-  cd "${SVC_HOME}/${SUBCA}"
-  chown -R -h ${SVC_USER}:${SVC_GROUP} .
-  chmod 755 . data
-  chmod 444 data/ca*.crt data/ca*.der data/dh.pem
-  if [ -e data/ecparams ]; then
-    chmod 755 data/ecparams
-    chmod 444 data/ecparams/*.pem
+  chown -R -h ${SVC_USER}:${SVC_GROUP} "${PKI_HOME}/${SUBCA}"
+  chmod 755 "${PKI_HOME}/${SUBCA}" "${PKI_HOME}/${SUBCA}/data"
+  chmod 444 "${PKI_HOME}/${SUBCA}"/data/ca*.crt "${PKI_HOME}/${SUBCA}"/data/ca*.der "${PKI_HOME}/${SUBCA}"/data/dh.pem
+
+  chmod 444 "${PKI_HOME}/${SUBCA}/data/ca-bundle."* "${PKI_HOME}/${SUBCA}/data/ca-chain."* "${PKI_HOME}/${SUBCA}/data/ca.crt" "${PKI_HOME}/${SUBCA}/data/ca.der"
+  chmod 644 "${PKI_HOME}/${SUBCA}/data/crl.pem" "${PKI_HOME}/${SUBCA}/data/crl.der"
+  if [ -e "${PKI_HOME}/${SUBCA}"/data/ecparams ]; then
+    chmod 755 "${PKI_HOME}/${SUBCA}"/data/ecparams
+    chmod 444 "${PKI_HOME}/${SUBCA}"/data/ecparams/*.pem
   fi
-  chmod 644 data/crl.pem data/crl.der
-  chmod 600 data/private/*
+  chmod 600 "${PKI_HOME}/${SUBCA}"/data/private/*
 done
 
 exit 0
