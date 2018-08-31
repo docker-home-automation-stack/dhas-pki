@@ -128,11 +128,8 @@ for TYPE in root client code email server; do
 
         # certificate variants
         [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
-        if [ -s "${REQ%.*}".nopasswd.key ]; then
-          openssl pkcs12 -out "${REQ%.*}".nopasswd.p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
-          if [ -s "${REQ%.*}".passwd ]; then
-            openssl pkcs12 -out "${REQ%.*}".p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
-          fi
+        if [ -s "${REQ%.*}".nopasswd.key ] && [ -s "${REQ%.*}".passwd ]; then
+          openssl pkcs12 -out "${REQ%.*}".p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
         fi
 
         # finishing
