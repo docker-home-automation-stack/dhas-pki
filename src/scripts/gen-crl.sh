@@ -13,6 +13,8 @@ umask 0033
 TMPDIR="$(mktemp -d /dev/shm/XXXXXXXXXXXXXXXXXXX)"
 TYPE=$1
 ALGO=$2
+algo_openssl=${ALGO}
+[ "${algo_openssl}" = 'ecc' ] && algo_openssl="ec"
 
 [ "${TYPE}" = 'root' ] && [ $(id -u) != 0 ] && exit 1
 
@@ -33,7 +35,7 @@ if [ $delta -le 259200 ]; then
   if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" ]; then
     echo " - unlocking CA private key"
     CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-    openssl ${algo_openssl} -out "${CA_KEY}" -aes256 -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" -passout pass:
+    openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" -passout pass:
     ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
   fi
 

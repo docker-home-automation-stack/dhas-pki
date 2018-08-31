@@ -102,7 +102,7 @@ for CA in ${LIST}; do
       exit 1
     fi
     CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-    openssl ${algo_openssl} -out "${CA_KEY}" -aes256 -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
+    openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
     ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
   fi
 
