@@ -4,47 +4,53 @@ PKI_HOME=${PKI_HOME:-${SVC_HOME:-/pki}}
 PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
 REQS="${PKI_HOME}/fifo"
 
-for DIR in $(find "${PKI_HOME}" -mindepth 1 -maxdepth 1 -type d | grep -v "^${REQS}") "${PKI_HOME}/.gitignore" "${PKI_HOME}/.rnd"; do
-  chown -R -h root:${SVC_GROUP} "${DIR}"
-done
+find "${PKI_HOME}" -xdev -type l -exec test ! -e {} \; -delete
+chown -R -h root:root "${PKI_HOME}/.gitignore"
+chown -R -h root:${SVC_GROUP} "${PKI_HOME}/.rnd"
 chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}"
 chmod 751 "${REQS}"
+chmod 710 "${PKI_PASSWD}"
+chmod 751 "${PKI_HOME}"
 chmod 555 "${PKI_HOME}/easyrsa"
-chmod 660 "${PKI_HOME}/.gitignore" "${PKI_HOME}/.rnd"
+chmod 660 "${PKI_HOME}/.rnd"
+chmod 644 "${PKI_HOME}/.gitignore"
+find "${PKI_HOME}/web" -type d -exec chmod 755 {} \;
+find "${PKI_HOME}/web" -type f -exec chmod 644 {} \;
 
-# enforce directory and file permissions for Root CA
-for ROOTCA in $(ls "${PKI_HOME}/" | grep -E "^.*-ca$" | grep ^root-); do
-  chown -R -h root:root "${ROOTCA}"
-  chown root:${SVC_GROUP} "${ROOTCA}" "${ROOTCA}/data"
-  find "${ROOTCA}" -type d -exec chmod 700 {} \;
-  find "${ROOTCA}" -type f -exec chmod 600 {} \;
-  chmod 750 "${ROOTCA}" "${ROOTCA}/data"
-  chmod 444 "${ROOTCA}/data/ca-bundle."* "${ROOTCA}/data/ca.crt" "${ROOTCA}/data/ca.der"
-  chmod 644 "${ROOTCA}/data/crl.pem" "${ROOTCA}/data/crl.der"
-done
+for CA in $(ls "${PKI_HOME}/" | grep -E "^.*-ca$"); do
+  type=$(echo "${CA}" | cut -d "-" -f 1)
+  algo=$(echo "${CA}" | cut -d "-" -f 2)
+  DIR="${PKI_HOME}/${CA}"
+  DIRPASSWD="${PKI_PASSWD}/${CA}"
 
-for SUBCA in $(ls "${PKI_HOME}/" | grep -E "^.*-ca$" | grep -v ^root-); do
-
-  # fifo directory for Sub CA
-  mkdir -p "${REQS}/${SUBCA/-*}" "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  chmod 755 "${REQS}/${SUBCA/-*}"
-  chmod 710 "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)"
-  find "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -mindepth 1 -type d -exec chmod 770 {} \;
-  find "${REQS}/${SUBCA/-*}/$(echo ${SUBCA} | cut -d - -f 2)" -type f -name "*.key" -exec chmod 660 {} \;
-
-  # enforce directory and file permissions for Sub CA
-  chown -R -h ${SVC_USER}:${SVC_GROUP} "${PKI_HOME}/${SUBCA}"
-  chmod 755 "${PKI_HOME}/${SUBCA}" "${PKI_HOME}/${SUBCA}/data"
-  chmod 444 "${PKI_HOME}/${SUBCA}"/data/ca*.crt "${PKI_HOME}/${SUBCA}"/data/ca*.der "${PKI_HOME}/${SUBCA}"/data/dh.pem
-
-  chmod 444 "${PKI_HOME}/${SUBCA}/data/ca-bundle."* "${PKI_HOME}/${SUBCA}/data/ca-chain."* "${PKI_HOME}/${SUBCA}/data/ca.crt" "${PKI_HOME}/${SUBCA}/data/ca.der"
-  chmod 644 "${PKI_HOME}/${SUBCA}/data/crl.pem" "${PKI_HOME}/${SUBCA}/data/crl.der"
-  if [ -e "${PKI_HOME}/${SUBCA}"/data/ecparams ]; then
-    chmod 755 "${PKI_HOME}/${SUBCA}"/data/ecparams
-    chmod 444 "${PKI_HOME}/${SUBCA}"/data/ecparams/*.pem
+  if [ "${type}" = 'root' ]; then
+    chown -R -h root:root "${DIR}"
+    chown -R -h root:root "${DIRPASSWD}"
+    chown root:${SVC_GROUP} "${DIR}" "${DIR}/data"
+  else
+    chown -R -h ${SVC_USER}:${SVC_GROUP} "${DIR}"
+    chown -R -h root:${SVC_GROUP} "${DIRPASSWD}"
   fi
-  chmod 600 "${PKI_HOME}/${SUBCA}"/data/private/*
+  chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}/${CA/-*}/$(echo ${CA} | cut -d - -f 2)"
+
+  chmod 751 "${DIR}" "${DIR}/data"
+  chmod 444 "${DIR}"/data/ca*.crt "${DIR}"/data/ca*.der
+  chmod 444 "${DIR}/data/ca-bundle."* "${DIR}/data/ca.crt" "${DIR}/data/ca.der"
+  [ -e "${DIR}/data/dh.pem" ] && chmod 444 "${DIR}/data/dh."*
+  [ -e "${DIR}/data/ca-chain.crt" ] && chmod 444 "${DIR}/data/ca-chain."*
+  [ -e "${DIR}/data/crl.pem" ] && chmod 644 "${DIR}/data/crl."*
+  if [ -e "${DIR}"/data/ecparams ]; then
+    chmod 755 "${DIR}"/data/ecparams
+    chmod 444 "${DIR}"/data/ecparams/*.pem
+  fi
+  chmod 600 "${DIR}"/data/private/*
+
+  # fifo directory
+  mkdir -p "${REQS}/${CA/-*}" "${REQS}/${CA/-*}/$(echo ${CA} | cut -d - -f 2)"
+  chmod 755 "${REQS}/${CA/-*}"
+  chmod 710 "${REQS}/${CA/-*}/$(echo ${CA} | cut -d - -f 2)"
+  find "${REQS}/${CA/-*}/$(echo ${CA} | cut -d - -f 2)" -mindepth 1 -type d -exec chmod 770 {} \;
+  find "${REQS}/${CA/-*}/$(echo ${CA} | cut -d - -f 2)" -type f -name "*.key" -exec chmod 660 {} \;
 done
 
 exit 0

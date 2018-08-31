@@ -62,10 +62,11 @@ for CA in ${LIST}; do
   [ "${algo_openssl}" = 'ecc' ] && algo_openssl="ec"
   ALGO=$(echo "${algo}" | tr '[:lower:]' '[:upper:]')
   CN=$(eval "echo \${PKI_${TYPE}CA_CN:-$CA}")
+  DIR="${PKI_HOME}/${CA}"
 
   # Initialize CA
   echo -e "\n\n[Build PKI: ${CA}] Initializing ..."
-  cd "${PKI_HOME}/${CA}"
+  cd "${DIR}"
   ln -sfv ../easyrsa .
   [ "${type}" = 'root' ] && ./easyrsa init-pki
   [ "${type}" != 'root' ] && ./easyrsa --batch init-pki
@@ -115,14 +116,14 @@ for CA in ${LIST}; do
     # Sign Sub CA with Root CA
     echo -e "[Build PKI: ${CA}] Generating signed CA certificate with Root ${ALGO} CA ..."
     cd "${PKI_HOME}/root-${algo}-ca"
-    ./easyrsa --batch import-req "${PKI_HOME}/${CA}/data/reqs/ca.req" "${CA}"
+    ./easyrsa --batch import-req "${DIR}/data/reqs/ca.req" "${CA}"
     ./easyrsa --batch sign-req ca "${CA}"
-    cp -fv "data/issued/${CA}.crt" "${PKI_HOME}/${CA}/data/ca.crt"
-    cat "data/issued/${CA}.crt" "data/ca.crt" > "${PKI_HOME}/${CA}/data/ca-chain.crt"
+    cp -fv "data/issued/${CA}.crt" "${DIR}/data/ca.crt"
+    cat "data/issued/${CA}.crt" "data/ca.crt" > "${DIR}/data/ca-chain.crt"
 
   fi
 
-  cd "${PKI_HOME}/${CA}"
+  cd "${DIR}"
 
   # Create full CA bundle file in PKCS#12 format
   echo -e "[Build PKI: ${CA}] Generating full CA bundle file in PKCS#12 format ..."
