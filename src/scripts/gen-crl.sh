@@ -20,9 +20,11 @@ algo_openssl=${ALGO}
 
 [ "${TYPE}" = 'root' ] && [ $(id -u) != 0 ] && exit 1
 
+CA="${TYPE}-${ALGO}-ca"
+
 # re-generate CRL every 3 days with 6 days validity
 # to allow overlap period
-cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
+cd "${SVC_HOME}/${CA}"
 if [ -s data/crl.pem ]; then
   nextUpdate=$(date --date="$(openssl crl -in data/crl.pem -noout -nextupdate | cut -d = -f 2)" '+%s')
   dateNow=$(date +"%s")
@@ -32,14 +34,14 @@ else
 fi
 
 if [ $delta -le 259200 ]; then
-  echo "Re-generating CRL for ${TYPE}-${ALGO}-ca"
+  echo "Re-generating CRL for ${CA}"
 
   TMPDIR="$(mktemp -d /dev/shm/XXXXXXXXXXXXXXXXXXX)"
 
   # Unlock CA private key
-  if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" ]; then
+  if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
     CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-    openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" -passout pass:
+    openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
     ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
   fi
 
