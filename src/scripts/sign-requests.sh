@@ -48,6 +48,7 @@ for TYPE in root client code email server; do
         [ -s "${REQ%.*}".crt ] && continue # ignore already signed certificate
         FILENAME="${REQ##*/}"
         BASENAME="${REQUESTOR}--${FILENAME%.*}"
+        CA="${CA}"
 
         if [ "${TYPE}" = 'root' ] && [ "${USERUID}" != 0 ]; then
           echo "Pending signing request for Root CA requires manual attention: ${REQ}"
@@ -56,13 +57,13 @@ for TYPE in root client code email server; do
 
         rm -f "${REQ}.error" "${REQ}.error.txt" "${REQ}.signed" "${REQ}.signed.txt"
 
-        cd "${SVC_HOME}/${TYPE}-${ALGO}-ca"
+        cd "${PKI_HOME}/${CA}"
 
         touch "${REQ}.processing"
         chmod 644 "${REQ}.processing"
 
         # import into PKI
-        echo "[${TYPE}-${ALGO}-ca] Importing '${REQ}' as '${BASENAME}'"
+        echo "[${CA}] Importing '${REQ}' as '${BASENAME}'"
         rm -f "data/reqs/${BASENAME}.req"
         RET_TXT=$(./easyrsa --batch import-req "${REQ}" "${BASENAME}" 2>&1)
         RET_CODE=$?
@@ -71,15 +72,15 @@ for TYPE in root client code email server; do
         if [ "${RET_CODE}" = '0' ]; then
 
           # Unlock CA private key
-          if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" ]; then
+          if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
             CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-            openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" -passout pass:
+            openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
             ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
           fi
 
           SAN=$(./easyrsa show-req "${BASENAME}" | grep -A 1 "Subject Alternative Name:" | tail -n +2 | sed -e "s/ //g")
           [ ! "${SAN}" = "" ] && SAN="--subject-alt-name=\"${SAN}\""
-          echo "[${TYPE}-${ALGO}-ca] Signing '${BASENAME}'"
+          echo "[${CA}] Signing '${BASENAME}'"
           CTYPE="${TYPE}"
           [ "${TYPE}" = 'root' ] && CTYPE="ca"
           RET_TXT=$(./easyrsa --batch ${SAN} sign-req ${CTYPE} "${BASENAME}" 2>&1)
@@ -95,7 +96,7 @@ for TYPE in root client code email server; do
         fi
 
         # copy certificate
-        echo "[${TYPE}-${ALGO}-ca] Exporting '${BASENAME}.crt' to '${REQ%.*}.crt'"
+        echo "[${CA}] Exporting '${BASENAME}.crt' to '${REQ%.*}.crt'"
         cp -f "data/issued/${BASENAME}.crt" "${REQ%.*}.crt"
 
         # copy CA chain
