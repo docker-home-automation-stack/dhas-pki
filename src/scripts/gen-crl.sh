@@ -10,6 +10,7 @@ HOME="${PKI_HOME}"
 REQS="${PKI_HOME}/fifo"
 umask 0033
 
+TMPDIR="$(mktemp -d /dev/shm/XXXXXXXXXXXXXXXXXXX)"
 TYPE=$1
 ALGO=$2
 
@@ -27,6 +28,18 @@ else
 fi
 if [ $delta -le 259200 ]; then
   echo "Re-generating CRL for ${TYPE}-${ALGO}-ca"
+
+  # Unlock CA private key
+  if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" ]; then
+    echo " - unlocking CA private key"
+    CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
+    openssl ${algo_openssl} -out "${CA_KEY}" -aes256 -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${TYPE}-${ALGO}-ca/${TYPE}-${ALGO}-ca.passwd" -passout pass:
+    ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
+  fi
+
   ./easyrsa --batch gen-crl
   openssl crl -in data/crl.pem -out data/crl.der -outform der
 fi
+
+rm -rfv "${TMPDIR}"
+exit 0
