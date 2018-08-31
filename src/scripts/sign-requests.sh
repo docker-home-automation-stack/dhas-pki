@@ -120,7 +120,7 @@ for TYPE in root client code email server; do
         # Unlock cert private key
         if [ ! -s "${REQ%.*}".nopasswd.key ] && [ -s "${REQ%.*}".passwd ]; then
           KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-          openssl ${algo_openssl} -out "${KEY}" -aes256 -in "${REQ%.*}".key -passin file:"${REQ%.*}".passwd -passout pass:
+          openssl ${algo_openssl} -out "${KEY}" -in "${REQ%.*}".key -passin file:"${REQ%.*}".passwd -passout pass:
           ln -sfv "${KEY}" "${REQ%.*}".nopasswd.key # use unencrypted key from memory
         fi
 
