@@ -53,4 +53,3 @@ done
 
 HOME="${CURRHOME}"
 cd "${CURRDIR}"
-exit 0
