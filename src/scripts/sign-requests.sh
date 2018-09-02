@@ -52,6 +52,8 @@ for TYPE in root client code email server; do
 
         if [ "${TYPE}" = 'root' ] && [ "${USERUID}" != 0 ]; then
           echo "Pending signing request for Root CA requires manual attention: ${REQ}"
+          echo "CA-manual-approval-wait" > "${REQ}.processing"
+          chmod 644 "${REQ}.processing"
           continue
         fi
 
