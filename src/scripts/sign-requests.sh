@@ -59,30 +59,39 @@ for TYPE in root client code email server; do
 
         cd "${PKI_HOME}/${CA}"
 
-        touch "${REQ}.processing"
+        echo "CA-unlock" > "${REQ}.processing"
         chmod 644 "${REQ}.processing"
+
+        # Unlock CA private key
+        if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
+          CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
+          RET_TXT=$(openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:)
+          RET_CODE=$?
+          if [ "${RET_CODE}" = '0' ]; then
+            ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key"
+
+          # Skip processing if CA is currently "offline"
+          else
+            echo "CA-unlock-wait-offline: ${RET_TXT}" > "${REQ}.processing"
+            continue
+          fi
+        fi
 
         # import into PKI
         echo "[${CA}] Importing '${REQ}' as '${BASENAME}'"
+        echo "CA-import" > "${REQ}.processing"
         rm -f "data/reqs/${BASENAME}.req"
         RET_TXT=$(./easyrsa --batch import-req "${REQ}" "${BASENAME}" 2>&1)
         RET_CODE=$?
 
         # sign request
         if [ "${RET_CODE}" = '0' ]; then
-
-          # Unlock CA private key
-          if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
-            CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-            openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:
-            ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key" # use unencrypted key from memory
-          fi
-
           SAN=$(./easyrsa show-req "${BASENAME}" | grep -A 1 "Subject Alternative Name:" | tail -n +2 | sed -e "s/ //g")
           [ ! "${SAN}" = "" ] && SAN="--subject-alt-name=\"${SAN}\""
           echo "[${CA}] Signing '${BASENAME}'"
           CTYPE="${TYPE}"
           [ "${TYPE}" = 'root' ] && CTYPE="ca"
+          echo "CA-signing" > "${REQ}.processing"
           RET_TXT=$(./easyrsa --batch ${SAN} sign-req ${CTYPE} "${BASENAME}" 2>&1)
           RET_CODE=$?
         fi
@@ -96,6 +105,7 @@ for TYPE in root client code email server; do
         fi
 
         # copy certificate
+        echo "CA-finishing" > "${REQ}.processing"
         echo "[${CA}] Exporting '${BASENAME}.crt' to '${REQ%.*}.crt'"
         cp -f "data/issued/${BASENAME}.crt" "${REQ%.*}.crt"
 
