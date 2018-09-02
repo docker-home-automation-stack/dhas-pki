@@ -76,6 +76,7 @@ for TYPE in root client code email server; do
           # Skip processing if CA is currently "offline"
           else
             echo "CA-unlock-wait-offline: ${RET_TXT}" > "${REQ}.processing"
+            echo "[${CA}] CA-unlock-wait-offline ${REQ}"
             continue
           fi
         fi
@@ -107,6 +108,8 @@ for TYPE in root client code email server; do
           continue
         fi
 
+        echo "[${CA}] signed ${REQ}"
+
         # copy certificate
         echo "CA-finishing" > "${REQ}.processing"
         echo "[${CA}] Exporting '${BASENAME}.crt' to '${REQ%.*}.crt'"
@@ -120,7 +123,7 @@ for TYPE in root client code email server; do
         [ -s "data/dh.pem" ] && cp --force --preserve=mode,timestamps "data/dh.pem" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
 
         # generate password file
-        if [ ! -s "${REQ%.*}".passwd ]; then
+        if [ ! -s "${REQ%.*}".passwd ] && [ -s "${REQ%.*}".nopasswd.key ]; then
           if [ "${TYPE}" = 'client' ] || [ "${TYPE}" = 'email' ]; then
             pwgen -1Bcn 12 1 > "${REQ%.*}".passwd
           else
