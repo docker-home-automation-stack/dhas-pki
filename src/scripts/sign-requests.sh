@@ -68,7 +68,7 @@ for TYPE in root client code email server; do
         # Unlock CA private key
         if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
           CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-          RET_TXT=$(openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd > /dev/null" -passout pass:)
+          RET_TXT=$(openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass: > /dev/null)
           RET_CODE=$?
           if [ "${RET_CODE}" = '0' ]; then
             ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key"
