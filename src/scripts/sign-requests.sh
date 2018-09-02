@@ -158,9 +158,22 @@ for TYPE in root client code email server; do
         # public certificate variants
         [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}.full.crt"
 
-        # private certificate variants
+        # private key variants, encrypted
         if [ -s "${REQ%.*}.nopasswd.key" ]; then
-          openssl pkcs12 -out "${REQ%.*}.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}.passwd" "${REQ%.*}.p12"
+          openssl ${algo_openssl} -out "${REQ%.*}.der.key" -outform DER -in "${REQ%.*}.nopasswd.key" -passout file:"${REQ%.*}.passwd"
+          openssl pkcs8 -out "${REQ%.*}.pkcs8.key" -topk8 -in "${REQ%.*}.nopasswd.key" -passout file:"${REQ%.*}.passwd"
+          openssl pkcs8 -out "${REQ%.*}.pkcs8.der.key" -topk8 -inform PEM -outform DER -in "${REQ%.*}.nopasswd.key" -passout file:"${REQ%.*}.passwd"
+          [ ! -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -passout file:"${REQ%.*}.passwd"
+          [ -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}.passwd"
+        fi
+
+        # private key variants, unencrypted
+        if [ ! -L "${REQ%.*}.nopasswd.key" ]; then
+          openssl ${algo_openssl} -out "${REQ%.*}.nopasswd.der.key" -outform DER -in "${REQ%.*}.nopasswd.key" -passout pass:
+          openssl pkcs8 -out "${REQ%.*}.nopasswd.pkcs8.key" -topk8 -in "${REQ%.*}.nopasswd.key" -passout pass:
+          openssl pkcs8 -out "${REQ%.*}.nopasswd.pkcs8.der.key" -topk8 -inform PEM -outform DER -in "${REQ%.*}.nopasswd.key" -passout pass:
+          [ ! -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.nopasswd.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -passout pass:
+          [ -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.nopasswd.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
         fi
 
         # finishing
