@@ -132,22 +132,25 @@ for TYPE in root client code email server; do
         [ ! -s "${REQ%.*}".key ] && [ -s "${REQ%.*}".nopasswd.key ] && openssl ${algo_openssl} -out "${REQ%.*}".key -aes256 -in "${REQ%.*}".nopasswd.key -passout file:"${REQ%.*}".passwd
 
         # Unlock cert private key
-        if [ ! -s "${REQ%.*}".nopasswd.key ] && [ -s "${REQ%.*}".passwd ]; then
+        if [ ! -s "${REQ%.*}.nopasswd.key" ] && [ -s "${REQ%.*}.passwd" ]; then
           KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-          openssl ${algo_openssl} -out "${KEY}" -in "${REQ%.*}".key -passin file:"${REQ%.*}".passwd -passout pass:
-          ln -sfv "${KEY}" "${REQ%.*}".nopasswd.key # use unencrypted key from memory
+          RET_TXT=$(openssl ${algo_openssl} -out "${KEY}" -in "${REQ%.*}".key -passin file:"${REQ%.*}".passwd -passout pass:)
+          RET_CODE=$?
+          [ "${RET_CODE}" = '0' ] && ln -sfv "${KEY}" "${REQ%.*}.nopasswd.key"
         fi
 
-        # certificate variants
+        # public certificate variants
         [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
-        if [ -s "${REQ%.*}".nopasswd.key ] && [ -s "${REQ%.*}".passwd ]; then
-          openssl pkcs12 -out "${REQ%.*}".p12 -export -inkey "${REQ%.*}".nopasswd.key -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
+
+        # private certificate variants
+        if [ -s "${REQ%.*}.nopasswd.key" ]; then
+          openssl pkcs12 -out "${REQ%.*}".p12 -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
         fi
 
         # finishing
-        rm -f "${REQ}.processing"
         echo "$RET_TXT" > "${REQ}.signed.txt"
         mv "${REQ}" "${REQ}.signed"
+        rm -f "${REQ}.processing"
       done
 
       # # search for signed requests
