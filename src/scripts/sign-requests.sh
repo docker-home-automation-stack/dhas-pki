@@ -38,7 +38,7 @@ for TYPE in root client code email server; do
 
     SUDO="."
     [ "${TYPE}" = 'root' ] && SUDO="sudo -E"
-    ${SUDO} /usr/local/bin/gen-crl.sh ${TYPE} ${ALGO}    
+    ${SUDO} /usr/local/bin/gen-crl.sh ${TYPE} ${ALGO}
 
     # search per requestor directory
     for REQUESTOR in $(cd "${REQS}/${TYPE}/${ALGO}"; ls); do
@@ -68,7 +68,7 @@ for TYPE in root client code email server; do
         # Unlock CA private key
         if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
           CA_KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-          RET_TXT=$(openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd" -passout pass:)
+          RET_TXT=$(openssl ${algo_openssl} -out "${CA_KEY}" -in "data/private/ca.key" -passin file:"${PKI_PASSWD}/${CA}/${CA}.passwd > /dev/null" -passout pass:)
           RET_CODE=$?
           if [ "${RET_CODE}" = '0' ]; then
             ln -sfv "${CA_KEY}" "data/private/ca.nopasswd.key"
@@ -144,7 +144,7 @@ for TYPE in root client code email server; do
         # Unlock cert private key
         if [ ! -s "${REQ%.*}.nopasswd.key" ] && [ -s "${REQ%.*}.passwd" ]; then
           KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-          RET_TXT=$(openssl ${algo_openssl} -out "${KEY}" -in "${REQ%.*}.key" -passin file:"${REQ%.*}.passwd" -passout pass:)
+          RET_TXT=$(openssl ${algo_openssl} -out "${KEY}" -in "${REQ%.*}.key" -passin file:"${REQ%.*}.passwd" -passout pass: > /dev/null)
           RET_CODE=$?
           if [ "${RET_CODE}" = '0' ]; then
             if [ -e "${REQ%.*}.key.keep" ]; then
@@ -163,17 +163,19 @@ for TYPE in root client code email server; do
           openssl ${algo_openssl} -out "${REQ%.*}.der.key" -outform DER -in "${REQ%.*}.nopasswd.key" -passout file:"${REQ%.*}.passwd"
           openssl pkcs8 -out "${REQ%.*}.pkcs8.key" -topk8 -in "${REQ%.*}.nopasswd.key" -passout file:"${REQ%.*}.passwd"
           openssl pkcs8 -out "${REQ%.*}.pkcs8.der.key" -topk8 -inform PEM -outform DER -in "${REQ%.*}.nopasswd.key" -passout file:"${REQ%.*}.passwd"
-          [ ! -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -passout file:"${REQ%.*}.passwd"
-          [ -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}.passwd"
-        fi
+          [ ! -s "data/ca-chain.crt" ] && [ ! -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.p12" -export -aes256 -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -passout file:"${REQ%.*}.passwd"
+          [ -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.p12" -export -aes256 -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}.passwd"
+          [ -s "data/ca.crt" ] && openssl pkcs12 -out "${REQ%.*}.p12" -export -aes256 -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca.crt" -passout file:"${REQ%.*}.passwd"
 
-        # private key variants, unencrypted
-        if [ ! -L "${REQ%.*}.nopasswd.key" ]; then
-          openssl ${algo_openssl} -out "${REQ%.*}.nopasswd.der.key" -outform DER -in "${REQ%.*}.nopasswd.key" -passout pass:
-          openssl pkcs8 -out "${REQ%.*}.nopasswd.pkcs8.key" -topk8 -in "${REQ%.*}.nopasswd.key" -passout pass:
-          openssl pkcs8 -out "${REQ%.*}.nopasswd.pkcs8.der.key" -topk8 -inform PEM -outform DER -in "${REQ%.*}.nopasswd.key" -passout pass:
-          [ ! -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.nopasswd.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -passout pass:
-          [ -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.nopasswd.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
+          # private key variants, unencrypted
+          if [ ! -L "${REQ%.*}.nopasswd.key" ]; then
+            openssl ${algo_openssl} -out "${REQ%.*}.nopasswd.der.key" -outform DER -in "${REQ%.*}.nopasswd.key" -passout pass:
+            openssl pkcs8 -out "${REQ%.*}.nopasswd.pkcs8.key" -topk8 -in "${REQ%.*}.nopasswd.key" -passout pass:
+            openssl pkcs8 -out "${REQ%.*}.nopasswd.pkcs8.der.key" -topk8 -inform PEM -outform DER -in "${REQ%.*}.nopasswd.key" -passout pass:
+            [ ! -s "data/ca-chain.crt" ] && [ ! -s "data/ca.crt" ] && openssl pkcs12 -out "${REQ%.*}.nopasswd.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -passout pass:
+            [ -s "data/ca-chain.crt" ] && openssl pkcs12 -out "${REQ%.*}.nopasswd.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout pass:
+            [ -s "data/ca.crt" ] && openssl pkcs12 -out "${REQ%.*}.nopasswd.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca.crt" -passout pass:
+          fi
         fi
 
         # finishing
