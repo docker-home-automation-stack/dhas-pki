@@ -50,10 +50,12 @@ for TYPE in root client code email server; do
         BASENAME="${REQUESTOR}--${FILENAME%.*}"
         CA="${TYPE}-${ALGO}-ca"
 
+        touch "${REQ}.processing"
+        chmod 644 "${REQ}.processing"
+
         if [ "${TYPE}" = 'root' ] && [ "${USERUID}" != 0 ]; then
           echo "Pending signing request for Root CA requires manual attention: ${REQ}"
           echo "CA-manual-approval-wait" > "${REQ}.processing"
-          chmod 644 "${REQ}.processing"
           continue
         fi
 
@@ -62,7 +64,6 @@ for TYPE in root client code email server; do
         cd "${PKI_HOME}/${CA}"
 
         echo "CA-unlock" > "${REQ}.processing"
-        chmod 644 "${REQ}.processing"
 
         # Unlock CA private key
         if [ ! -s "data/private/ca.nopasswd.key" ] && [ -s "${PKI_PASSWD}/${CA}/${CA}.passwd" ]; then
