@@ -128,8 +128,6 @@ for TYPE in root client code email server; do
 
         # Encrypt cert private key with password
         if [ ! -s "${REQ%.*}.key" ] && [ -s "${REQ%.*}.nopasswd.key" ]; then
-          
-          touch "${REQ%.*}.key.keep"
 
           # generate password file
           if [ ! -s "${REQ%.*}.passwd" ]; then
@@ -150,7 +148,7 @@ for TYPE in root client code email server; do
           RET_CODE=$?
           if [ "${RET_CODE}" = '0' ]; then
             if [ -e "${REQ%.*}.key.keep" ]; then
-              cat ${KEY} > "${KEY}" "${REQ%.*}.nopasswd.key"
+              cat "${KEY}" > "${KEY}" "${REQ%.*}.nopasswd.key"
             else
               ln -sfv "${KEY}" "${REQ%.*}.nopasswd.key"
             fi
