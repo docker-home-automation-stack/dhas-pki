@@ -45,7 +45,7 @@ for TYPE in root client code email server; do
 
       # search requests
       for REQ in $(find "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}" -type f -regex "^.*\.csr$" -o -regex "^.*\.req$"); do
-        [ -s "${REQ%.*}".crt ] && continue # ignore already signed certificate
+        [ -s "${REQ%.*}.crt" ] && continue # ignore already signed certificate
         FILENAME="${REQ##*/}"
         BASENAME="${REQUESTOR}--${FILENAME%.*}"
         CA="${TYPE}-${ALGO}-ca"
@@ -105,6 +105,7 @@ for TYPE in root client code email server; do
           rm -f "data/reqs/${BASENAME}.req" "${REQ}.processing"
           echo "${RET_TXT}" > "${REQ}.error.txt"
           mv "${REQ}" "${REQ}.error"
+          echo "[${CA}] ERROR signing ${REQ}"
           continue
         fi
 
@@ -122,33 +123,46 @@ for TYPE in root client code email server; do
         # copy DH file
         [ -s "data/dh.pem" ] && cp --force --preserve=mode,timestamps "data/dh.pem" "${REQS}/${TYPE}/${ALGO}/${REQUESTOR}/dh.pem"
 
-        # generate password file
-        if [ ! -s "${REQ%.*}".passwd ] && [ -s "${REQ%.*}".nopasswd.key ]; then
-          if [ "${TYPE}" = 'client' ] || [ "${TYPE}" = 'email' ]; then
-            pwgen -1Bcn 12 1 > "${REQ%.*}".passwd
-          else
-            pwgen -1sy 42 1 > "${REQ%.*}".passwd
-          fi
-        fi
+        # Rename unencrypted private key file if needed
+        [ -s "${REQ%.*}.key" ] && [ -z "$(cat "${REQ%.*}.key" | grep "^Proc-Type: 4,ENCRYPTED")" ] && mv -vf "${REQ%.*}.key" "${REQ%.*}.nopasswd.key"
 
         # Encrypt cert private key with password
-        [ -s "${REQ%.*}".key ] && [ -z "$(cat data/private/ca.key | grep "Proc-Type: 4,ENCRYPTED")" ] && mv -vf "${REQ%.*}".key "${REQ%.*}".nopasswd.key
-        [ ! -s "${REQ%.*}".key ] && [ -s "${REQ%.*}".nopasswd.key ] && openssl ${algo_openssl} -out "${REQ%.*}".key -aes256 -in "${REQ%.*}".nopasswd.key -passout file:"${REQ%.*}".passwd
+        if [ ! -s "${REQ%.*}.key" ] && [ -s "${REQ%.*}.nopasswd.key" ]; then
+          
+          touch "${REQ%.*}.key.keep"
+
+          # generate password file
+          if [ ! -s "${REQ%.*}.passwd" ]; then
+            if [ "${TYPE}" = 'client' ] || [ "${TYPE}" = 'email' ]; then
+              pwgen -1Bcn 12 1 > "${REQ%.*}.passwd"
+            else
+              pwgen -1sy 42 1 > "${REQ%.*}.passwd"
+            fi
+          fi
+
+          openssl ${algo_openssl} -out "${REQ%.*}.key" -aes256 -in "${REQ%.*}.nopasswd.key" -passout file:"${REQ%.*}.passwd"
+        fi
 
         # Unlock cert private key
         if [ ! -s "${REQ%.*}.nopasswd.key" ] && [ -s "${REQ%.*}.passwd" ]; then
           KEY=$(mktemp ${TMPDIR}/XXXXXXXXXXXXXXXXXXX)
-          RET_TXT=$(openssl ${algo_openssl} -out "${KEY}" -in "${REQ%.*}".key -passin file:"${REQ%.*}".passwd -passout pass:)
+          RET_TXT=$(openssl ${algo_openssl} -out "${KEY}" -in "${REQ%.*}.key" -passin file:"${REQ%.*}.passwd" -passout pass:)
           RET_CODE=$?
-          [ "${RET_CODE}" = '0' ] && ln -sfv "${KEY}" "${REQ%.*}.nopasswd.key"
+          if [ "${RET_CODE}" = '0' ]; then
+            if [ -e "${REQ%.*}.key.keep" ]; then
+              cat ${KEY} > "${KEY}" "${REQ%.*}.nopasswd.key"
+            else
+              ln -sfv "${KEY}" "${REQ%.*}.nopasswd.key"
+            fi
+          fi
         fi
 
         # public certificate variants
-        [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}".full.crt
+        [ -s "data/ca-chain.crt" ] && cat "data/issued/${BASENAME}.crt" "data/ca-chain.crt" > "${REQ%.*}.full.crt"
 
         # private certificate variants
         if [ -s "${REQ%.*}.nopasswd.key" ]; then
-          openssl pkcs12 -out "${REQ%.*}".p12 -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}".passwd "${REQ%.*}".p12
+          openssl pkcs12 -out "${REQ%.*}.p12" -export -inkey "${REQ%.*}.nopasswd.key" -in "data/issued/${BASENAME}.crt" -certfile "data/ca-chain.crt" -passout file:"${REQ%.*}.passwd" "${REQ%.*}.p12"
         fi
 
         # finishing
@@ -164,7 +178,7 @@ for TYPE in root client code email server; do
       #   REQ="${REQ_SIGNED%/*}${FILENAME}"
       #   BASENAME="${REQUESTOR}-${FILENAME%.*}"
       #
-      #   [ -s "${REQ%.*}".crt ] || continue # continue only when cert file still exists
+      #   [ -s "${REQ%.*}.crt" ] || continue # continue only when cert file still exists
       #
       #   #TODO: renew (almost) expired certificates
       # done
