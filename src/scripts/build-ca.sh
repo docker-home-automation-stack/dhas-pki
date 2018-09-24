@@ -77,6 +77,15 @@ for CA in ${LIST}; do
     echo -e "[Build PKI: ${CA}] Creating CA private key and self-signed certificate ..."
     ./easyrsa --batch --req-cn="${CN} (${ALGO})" build-ca nopass
 
+    # #TODO ... and cross-sign Root RSA CA with ECC CA
+    # if [ "${ALGO}" = 'RSA' ]; then
+    #   echo -e "[Build PKI: ${CA}] Cross-signing with Root ECC CA ..."
+    #   openssl req -utf8 -new -key data/private/ca.key -out data/reqs/root-ecc-ca.req
+    #   cd "${PKI_HOME}"/root-ecc-ca
+    #
+    #   cd "${DIR}"
+    # fi
+
   # If Sub CA, create CA private key and signing request
   else
     echo -e "[Build PKI: ${CA}] Creating CA private key and certificate signing request ..."
