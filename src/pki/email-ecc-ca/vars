@@ -57,7 +57,7 @@ set_var EASYRSA	"${SVC_HOME}/email-ecc-ca"
 # back-slashes.) Windows users should declare the full path to the openssl
 # binary here if it is not in their system PATH.
 
-set_var EASYRSA_OPENSSL	"/usr/bin/openssl"
+set_var EASYRSA_OPENSSL	"openssl"
 #
 # This sample is in Windows syntax -- edit it for your path if not using PATH:
 #set_var EASYRSA_OPENSSL	"C:/Program Files/OpenSSL-Win32/bin/openssl.exe"
@@ -185,7 +185,7 @@ set_var EASYRSA_TEMP_EXT	"/dev/shm/extensions.temp"
 # specific and you cannot just use a standard config file, so this is an
 # advanced feature.
 
-set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-email-ecc-ca.cnf"
+#set_var EASYRSA_SSL_CONF	"$EASYRSA/openssl-easyrsa.cnf"
 
 # Default CN:
 # This is best left alone. Interactively you will set this manually, and BATCH

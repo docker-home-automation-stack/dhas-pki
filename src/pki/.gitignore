@@ -5,4 +5,5 @@
 crl.pem
 crl.der
 *.nopasswd.*
+safessl-easyrsa.cnf
 root-*-ca/
