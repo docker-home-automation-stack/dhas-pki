@@ -156,7 +156,7 @@ for CA in ${LIST}; do
 
   # Create OCSP responder certificate
   echo -e "[Build PKI: ${CA}] Generating OCSP responder private key and signing request ..."
-  ./easyrsa --batch --req-cn="${CN} (${ALGO}), OCSP Responder" gen-req ca-ocsp nopass
+  ./easyrsa --batch --req-cn="${CN} (${ALGO}) OCSP Responder" gen-req ca-ocsp nopass
   echo -e "[Build PKI: ${CA}] Generating signed OCSP Responder certificate ..."
   ./easyrsa --batch sign-req ocsp-signing "ca-ocsp"
 
