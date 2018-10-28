@@ -1,4 +1,6 @@
 #!/bin/sh +e
+. /etc/profile
+PATH=".:${PATH}"
 
 PKI_HOME=${PKI_HOME:-${SVC_HOME:-/pki}}
 PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}

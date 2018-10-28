@@ -1,6 +1,7 @@
 #!/bin/sh
 # Original script:
 # https://raw.githubusercontent.com/ellerbrock/docker-collection/master/dockerfiles/alpine-harden/harden.sh
+. /etc/profile
 
 set -x
 set -e
