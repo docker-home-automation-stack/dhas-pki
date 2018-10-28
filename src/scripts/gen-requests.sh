@@ -1,6 +1,4 @@
 #!/bin/sh
-. /etc/profile
-PATH=".:${PATH}"
 
 CURRHOME="${HOME}"
 CURRDIR=$(pwd)

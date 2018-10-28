@@ -1,6 +1,4 @@
 #!/bin/sh
-. /etc/profile
-PATH=".:${PATH}"
 
 [ -z "$1" ] && exit 1
 [ -z "$2" ] && exit 1

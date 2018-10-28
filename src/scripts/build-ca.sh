@@ -1,6 +1,4 @@
 #!/bin/sh -e
-. /etc/profile
-PATH=".:${PATH}"
 
 echo -e "\n\n\nNOW GENERATING NEW PKI\n======================\n"
 
