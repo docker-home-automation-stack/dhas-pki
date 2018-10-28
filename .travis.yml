@@ -108,7 +108,7 @@ before_install:
       curl -fsSL https://github.com/multiarch/qemu-user-static/releases/download/v2.12.0-1/x86_64_qemu-${QEMU_ARCH}-static.tar.gz | tar zx -C ./src/;
     fi
   # download current easy-rsa version
-  - curl -fsSL https://raw.githubusercontent.com/OpenVPN/easy-rsa/v3.0.5/easyrsa3/easyrsa -o ./src/easyrsa && chmod 755 ./src/easyrsa;
+  - curl -fsSL https://raw.githubusercontent.com/OpenVPN/easy-rsa/v3.0.6/easyrsa3/easyrsa -o ./src/easyrsa && chmod 755 ./src/easyrsa;
 
 install:
   - travis_wait 120 sleep infinity & ./scripts/build.sh;
