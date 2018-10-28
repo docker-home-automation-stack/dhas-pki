@@ -57,7 +57,7 @@ set_var EASYRSA	"${SVC_HOME}/email-rsa-ca"
 # back-slashes.) Windows users should declare the full path to the openssl
 # binary here if it is not in their system PATH.
 
-#set_var EASYRSA_OPENSSL	"openssl"
+set_var EASYRSA_OPENSSL	"/usr/bin/openssl"
 #
 # This sample is in Windows syntax -- edit it for your path if not using PATH:
 #set_var EASYRSA_OPENSSL	"C:/Program Files/OpenSSL-Win32/bin/openssl.exe"
