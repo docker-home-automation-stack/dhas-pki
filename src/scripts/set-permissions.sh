@@ -7,7 +7,6 @@ PKI_PASSWD=${PKI_PASSWD:-${PKI_HOME}.passwd}
 REQS="${PKI_HOME}/fifo"
 
 find "${PKI_HOME}" -xdev -type l -exec test ! -e {} \; -delete
-chown root:${SVC_GROUP} "${PKI_HOME}"
 chown -R -h root:${SVC_GROUP} "${PKI_PASSWD}" "${PKI_HOME}/.gitignore" "${PKI_HOME}/.rnd"
 chown -R -h ${SVC_USER}:${SVC_GROUP} "${REQS}"
 chmod 751 "${REQS}"
