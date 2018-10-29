@@ -168,6 +168,10 @@ done
 echo -e "[Build PKI] Cleaning up temp dir from memory ..."
 rm -rfv "${TMPDIR}"
 
+echo -e "[Build PKI] Setting permissions ..."
+set +e
+/usr/local/bin/set-permissions.sh 2>/dev/null
+
 HOME="${CURRHOME}"
 cd "${CURRDIR}"
 exit 0
